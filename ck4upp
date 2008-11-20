@@ -1,0 +1,301 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+
+use Carp;
+use Config::General qw(ParseConfig SaveConfig);
+use Digest::MD5 qw(md5_hex);
+use Getopt::Std;
+use LWP::Simple;
+use Mail::Mailer;
+use version;
+
+use constant VERSION => q$Revision $;
+
+$Getopt::Std::STANDARD_HELP_VERSION = 1;
+
+# deletes the whitespaces at the beginning and the end
+sub trim {
+	my $str = shift;
+	$str =~ s/^\s+//;
+	$str =~ s/\s+$//;
+	return $str;
+}
+
+sub HELP_MESSAGE {
+	my $fh = shift;
+	print $fh <<EOF;
+usage: $0 [-k] [-f <file>] [-t <template>] [-q] [-n] [-l] [pattern [, ...]]
+	-k don't change the config file (keep the old reference values)
+	-f use the specified config file
+	-t uses template as template file for the mails (should contain "\${packages}")
+	-q don't print to STDOUT
+	-n send no mails
+	-l lists all packages found in the config file and exits
+
+EOF
+}
+
+sub VERSION_MESSAGE {
+	my $fh = shift;
+	print $fh <<EOF;
+$0 version 0.3.2
+	Richard Pöttler (richard dot poettler at gmail dot com)
+
+EOF
+}
+
+# parsing the command line options
+my %opt = ();
+getopts("kf:t:qnl", \%opt);
+
+# initializing the mailto settings
+my %mailto = ();
+my $template = <<EOF;
+Following packages has been updated:
+
+\${packages}
+EOF
+if ($opt{'t'}) {
+	open my $fh, "<", $opt{'t'} or croak $!;
+	read $fh, my $template, -s $opt{'t'} or croak $!;
+	close $fh or croak $!;
+}
+
+# cache the directory listings
+my %dir_cache = ();
+
+# loading the config file
+my $configfile = ($opt{'f'}) ? $opt{'f'} : $ENV{'HOME'} ."/.ck4upp";
+my %conf = ParseConfig(-ConfigFile => $configfile);
+
+if ($opt{'l'}) {
+	print join("\n", (sort {$a cmp $b} keys %conf)) . "\n";
+	exit 0;
+}
+
+# construct the regex to macht the packages to process
+my $packagePattern = join "|", @ARGV;
+my $packageRegex = qr/$packagePattern/;
+
+# processing the packages
+while (my ($name, $vals) = each %conf) {
+	next if (!($name =~ $packageRegex));
+
+	if(!$vals->{'checkurl'}) {
+		print STDERR "At least a 'checkurl' must be given for " . $name . "\n";
+		next;
+	}
+
+	my $note = "";
+	if ($vals->{'checkurl'} =~ /\${version}/) { # do version checking
+		(my $url = $vals->{'checkurl'}) =~ s/[^\/]*$//;
+		my $content = $dir_cache{$url} || ($dir_cache{$url} = get($url)) || 
+			do {carp "Couldn't get the content from " . $vals->{'checkurl'}; next;};
+
+		# construct the pattern to extract all occurences of this
+		# package
+		$vals->{'checkurl'} =~ /([^\/]*)$/;
+		my $pattern = $1;
+		$pattern =~ s/\${version}/([\\d\\.]+)/;
+
+		my %versions = map {$_ => 1} $content =~ /$pattern/g;
+		if (!%versions) {
+			print STDERR "Couldn't find any versions for " . $name . "\n";
+			next;
+		}
+
+		# compare the highest gathered version with the actual one
+		my $latest = (sort {$a <=> $b} map {qv($_)} keys %versions)[-1];
+		if (!$vals->{'refval'} || $latest ne $vals->{'refval'}) {
+			$note = $name . " (" . $vals->{'checkurl'} . 
+				") updated from " . 
+				($vals->{'refval'} || "<none>") . 
+				" to " .  $latest . "\n";
+			$vals->{'refval'} = $latest;
+		}
+	} else { # do the ordinary md5sum checking
+		my $content = get($vals->{'checkurl'}) || 
+			do {carp "Couldn't get the content from " . $vals->{'checkurl'}; next;};
+		my $md = md5_hex($content);
+		if (!$vals->{'refval'} || $vals->{'refval'} ne $md) {
+			$note = $name . " (" . $vals->{'checkurl'} . ") updated\n";
+			$vals->{'refval'} = $md;
+		}
+	}
+	if ($note) {
+		print $note if (!$opt{'q'});
+		if (!$opt{'n'} && $vals->{'mailto'}) {
+			for my $address ((ref $vals->{'mailto'}) ?
+				@{$vals->{'mailto'}} : $vals->{'mailto'}) {
+				$mailto{$address} .= $note;
+			}
+		}
+	}
+}
+
+#assemble and send mails
+while (my ($maintainer, $ports) = each %mailto) {
+	(my $mail = $template) =~ s/\${packages}/$ports/g;
+	my $mailer = Mail::Mailer->new;
+	$mailer->open({To => $maintainer, From => $maintainer, Subject => "port update notification"});
+	print $mailer $mail;
+	$mailer->close;
+}
+
+SaveConfig($configfile, \%conf) if (!$opt{'k'});
+
+=pod
+
+=encoding utf8
+
+=head1 NAME
+
+ck4upp - ck4up implementation in perl
+
+=head1 SYNOPSIS
+
+Checks for new packages, prints them to C<STDOUT> and sends the emails
+
+  $ ck4upp
+
+Checks the packages defined in C<config>, doesn't print something to C<STDOUT>, but
+sends the emails
+
+  $ ck4upp -f config -q
+
+Checks all p5-* packages
+
+  $ck4upp p5-
+
+=head1 DESCRIPTION
+
+This script checks whether the homepages (or the specified url) of a packages
+has been changed, and reports them to C<STDOUT> and/or per mail to a given
+recipient. The packages to check are specified in a file described in the
+section L</FILES>. A list of patterns can be passed as arguments. If a pattern
+is present only packages with matching names will be checked.
+
+=head1 OPTIONS
+
+=over
+
+=item -k
+
+Doesn't change the config file (keeps the old reference values)
+
+=item -f I<config>
+
+Reads the packages to check and their configuration from I<config>
+
+=item -t I<template>
+
+Uses the specified file as mail template. This template file should contain the
+string C<${packages}> which will then be replaced with the package
+notifications.
+
+=item -q
+
+Doesn't print anything to C<STDOUT>
+
+=item -n
+
+Doesn't send any emails
+
+=item -l
+
+Prints the packages of the config file and exits
+
+=item --version
+
+Prints the version
+
+=item --help
+
+Prints the version with a short help message
+
+=back
+
+=head1 FILES
+
+By default C<ck4upp> reads the file C<~/.ck4upp> and checks the packages listed
+in there. The file can also be specified using the C<-f> switch.
+
+The options for every package are specified between:
+
+C<E<lt>packagenameE<gt>>
+
+C<E<lt>/packagenameE<gt>>
+
+The options are specified linewise: C<key value>
+
+Valid option keys are:
+
+=over 4
+
+=item C<checkurl> (mandatory)
+
+The url to use when checkin the package. out of the content of this url the
+script will determine whether the package has been updated.
+
+=item C<refval> (voluntary)
+
+Will be set by the program, there is no need to worry about this.
+
+=item C<mailto> (voluntary)
+
+There might be more than one C<mailto> for one package specified. If the package
+has been updated an email will be send to this email address.
+
+=back
+
+=head1 VERSION CHECKING
+
+It is possible to let C<ck4upp> check for I<real> versions. To do this the
+released files must always lay in the same directory. Then the only thing which
+must be specified is the C<checkurl> with the version string (which must only
+contain digits and dots) substituted with C<${version}>. E.g:
+
+  checkurl http://cpan.serveroffice.at/authors/id/J/JP/JPEACOCK/version-${version}.tar.gz
+
+note that something like
+
+  checkurl http://check/different/${version}/directories/file.tar.gz
+
+will B<not> work.
+
+=head1 BUGS
+
+It is possible, that ck4upp doesn't send emails. Then you might have to adjust
+the C<PERL_MAILSERS> environment variable (see documentation for
+C<Mail::Mailer>). E.g. if you are using C<msmtp> and C<bash> this might result
+in something like:
+
+  $ export PERL_MAILERS=sendmail:`which msmtp`
+
+If you find a bug, please report them to the L</AUTHOR>
+
+=head1 TODO
+
+=over
+
+=back
+
+=head1 SEE ALSO
+
+C<Mail::Mailer>, C<Config::General>
+
+=head1 REQUIREMENTS
+
+C<Config::General>, C<LWP::Simple>, C<Mail::Mailer>, C<version>
+
+=head1 AUTHOR
+
+Richard Pöttler (richard dot poettler at gmail dot com)
+
+=head1 VERSION
+
+$Id: ck4upp,v 1.17 2007/12/10 08:54:01 richi Exp richi $
+
+=cut

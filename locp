@@ -1,0 +1,7 @@
+#!/bin/sed -f
+# remove comments and empty lines from a file
+
+# deleting single line comments
+s|\#.*$||
+# deleting empty lines
+/^[\ \	]*$/d

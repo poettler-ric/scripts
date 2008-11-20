@@ -1,0 +1,67 @@
+#!/bin/sh
+
+CONFFILE=$HOME/.porndown
+
+doFile() {
+	xargs $0 < $1
+}
+
+doLink() {
+	TMPFILE=$(mktemp)
+
+	# get the html file containing the information
+	wget -q -O $TMPFILE $1
+
+	# get title from the html file
+	TITLE=$(sed -n -e 's|<title>\([a-zA-z0-9 ._-]*\)</title>|\1|p' $TMPFILE)
+	# video url from the html file
+	URL=$(sed -n -e 's|var videourl="\([a-zA-Z0-9/.:_-]*\)";|\1|p' $TMPFILE)
+
+	# compute the output filename
+	FILENAME=$(echo $TITLE | sed -e 's|\([a-zA-Z0-9 ._-]*\) - \([a-zA-Z0-9 ._]*\) - \([a-zA-Z0-9 ._-]*\)|\1|' \
+		-e 's| |_|g')
+	FILENAME=$DESTDIR$FILENAME.${URL##*.}
+
+	echo title: $TITLE
+	echo filename: $FILENAME
+
+	# create the output directory
+	if [ ! -d $DESTDIR ]
+	then
+		mkdir -p $DESTDIR
+	fi
+
+	# download the file
+	wget -O $FILENAME $URL
+
+	rm $TMPFILE
+}
+
+# no args given
+if [ $# -lt 1 ]
+then
+	echo "usage: $0 <url|file> ..." >&2
+	exit
+fi
+
+# load the config file
+if [ -r $CONFFILE ]
+then
+	. $CONFFILE
+	DESTDIR=$DIR/
+else
+	DESTDIR=./
+fi
+
+# download the videos
+for arg in $@
+do
+	if [ -r $arg ]
+	then
+		doFile $arg
+	else
+		doLink $arg
+	fi
+done
+
+echo -- done --
