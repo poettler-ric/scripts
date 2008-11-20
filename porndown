@@ -13,12 +13,14 @@ doLink() {
 	wget -q -O $TMPFILE $1
 
 	# get title from the html file
-	TITLE=$(sed -n -e 's|<title>\([a-zA-z0-9 ._-]*\)</title>|\1|p' $TMPFILE)
+	TITLE=$(sed -n -e 's|<title>\(.*\)</title>|\1|p' $TMPFILE)
+	# clean the title from not valid characters
+	TITLE=$(echo $TITLE | sed -e 's|[^a-zA-Z0-9 _-]||g')
 	# video url from the html file
 	URL=$(sed -n -e 's|var videourl="\([a-zA-Z0-9/.:_-]*\)";|\1|p' $TMPFILE)
 
 	# compute the output filename
-	FILENAME=$(echo $TITLE | sed -e 's|\([a-zA-Z0-9 ._-]*\) - \([a-zA-Z0-9 ._]*\) - \([a-zA-Z0-9 ._-]*\)|\1|' \
+	FILENAME=$(echo $TITLE | sed -e 's|\(.*\) - \(.*\) - \(.*\)|\1|' \
 		-e 's| |_|g')
 	FILENAME=$DESTDIR$FILENAME.${URL##*.}
 
