@@ -22,7 +22,7 @@ then
 fi
 
 # cloning the repository
-git-clone $SRC $TMPDIR
+git clone $SRC $TMPDIR
 
 cd $TMPDIR
 
