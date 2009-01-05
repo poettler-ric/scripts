@@ -24,9 +24,6 @@ doLink() {
 		-e 's| |_|g')
 	FILENAME=$DESTDIR$FILENAME.${URL##*.}
 
-	echo title: $TITLE
-	echo filename: $FILENAME
-
 	# create the output directory
 	if [ ! -d $DESTDIR ]
 	then
@@ -34,7 +31,8 @@ doLink() {
 	fi
 
 	# download the file
-	wget -O $FILENAME $URL
+	echo Downloading: $TITLE
+	wget -q -O $FILENAME $URL
 
 	rm $TMPFILE
 }
