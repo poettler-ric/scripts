@@ -22,7 +22,14 @@ doLink() {
 	# compute the output filename
 	FILENAME=$(echo $TITLE | sed -e 's|\(.*\) - \(.*\) - \(.*\)|\1|' \
 		-e 's| |_|g')
-	FILENAME=$DESTDIR$FILENAME.${URL##*.}
+
+	DESTINATIONFILE=$DESTDIR$FILENAME.${URL##*.}
+	COUNTER=1
+	# while the file already exists add a incrementing number to the filename
+	while [ -f $DESTINATIONFILE ]
+	do
+		DESTINATIONFILE=${DESTDIR}${FILENAME}_$((COUNTER++)).${URL##*.}
+	done
 
 	# create the output directory
 	if [ ! -d $DESTDIR ]
@@ -31,8 +38,8 @@ doLink() {
 	fi
 
 	# download the file
-	echo Downloading: $TITLE
-	wget -q -O $FILENAME $URL
+	echo Downloading: $DESTINATIONFILE
+	wget -q -O $DESTINATIONFILE $URL
 
 	rm $TMPFILE
 }
