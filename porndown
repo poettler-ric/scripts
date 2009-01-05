@@ -23,9 +23,10 @@ doLink() {
 	FILENAME=$(echo $TITLE | sed -e 's|\(.*\) - \(.*\) - \(.*\)|\1|' \
 		-e 's| |_|g')
 
-	DESTINATIONFILE=$DESTDIR$FILENAME.${URL##*.}
+	DESTINATIONFILE=${DESTDIR}${FILENAME}.${URL##*.}
+
+	# while the destination file already exists add a incrementing number to the filename
 	COUNTER=1
-	# while the file already exists add a incrementing number to the filename
 	while [ -f $DESTINATIONFILE ]
 	do
 		DESTINATIONFILE=${DESTDIR}${FILENAME}_$((COUNTER++)).${URL##*.}
@@ -70,5 +71,3 @@ do
 		doLink $arg
 	fi
 done
-
-echo -- done --
