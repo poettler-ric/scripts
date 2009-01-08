@@ -1,0 +1,32 @@
+#!/usr/bin/tclsh
+
+# converts linebreaks of a file to a native format
+
+if {$argc > 0} {
+	set inputfile [lindex $argv 0]
+	if {[catch {open $inputfile r} input]} {
+		puts stderr "Coundn't open $inputfile for reading:\n$input"
+		exit 1
+	}
+} else {
+	set input stdin
+}
+
+if {$argc > 1} {
+	set outputfile [lindex $argv 1]
+	if {[catch {open $outputfile w} output]} {
+		puts stderr "Coundn't open $outputfile for writing:\n$output"
+		exit 2
+	}
+} else {
+	set output stdout
+}
+
+puts $output [read $input]
+
+if {$argc > 0} {
+	catch {close $input}
+}
+if {$argc > 1} {
+	catch {close $output}
+}
