@@ -14,10 +14,10 @@ my %config = $conf->getall;
 
 my $ua = LWP::UserAgent->new;
 $ua->credentials($config{'ip'} . ":" . $config{'port'}, $config{'realm'}, $config{'user'}, $config{'pwd'});
-my $res = $ua->get("http://" . $config{'ip'} . "/s_status.htm");
+my $res = $ua->get("http://" . $config{'ip'} . "/setup.cgi?next_file=Status.htm");
 $res->is_success or die $res->status_line . "\n";
 
-my $xpath = "/html/body/form/table/tr/td/b[text() = 'IP-Adresse']/../following-sibling::*[text() != '" . $config{'ip'} . "']/text()";
+my $xpath = "/html/body/form/div/table/tr/td/table/tr/td[text() = 'IP-Adresse:']/following-sibling::td";
 my $doc = XML::LibXML->new->parse_html_string($res->content);
 my $ip = XML::LibXML::XPathContext->new->findvalue($xpath, $doc);
 print time2str("%Y%m%d-%T", time) . " " if ($config{'date'});
