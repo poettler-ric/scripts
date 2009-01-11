@@ -10,7 +10,29 @@ use Mail::Mailer;
 use XML::LibXML;
 use XML::LibXML::XPathContext;
 
-my $conf = new Config::General($ENV{'HOME'} . "/.getip.conf");
+my $ipFile = $ENV{'HOME'} . "/.getip.lastip";
+my $configFile = $ENV{'HOME'} . "/.getip.conf";
+
+# writes a ip to the ip file
+sub readIp {
+	return "" if (! -r $ipFile);
+
+	open my $file, "<", $ipFile or die "Couldn't open file:\n" . $!;
+	my $ip = <$file>;
+	close $file or die "Couldn't close file:\n" . $!;
+	chomp $ip;
+	return $ip;
+}
+
+# reads the ip from the ip file
+sub writeIp {
+	my $ip = shift || die "A ip to write must be given.";
+	open my $file, ">", $ipFile or die "Couldn't open file:\n" . $!;
+	print $file $ip;
+	close $file or die "Couldn't close file:\n" . $!;
+}
+
+my $conf = new Config::General($configFile);
 my %config = $conf->getall;
 
 my $ua = LWP::UserAgent->new;
@@ -22,19 +44,23 @@ my $xpath = "/html/body/form/div/table/tr/td/table/tr/td[text() = 'IP-Adresse:']
 my $doc = XML::LibXML->new->parse_html_string($res->content);
 my $ip = XML::LibXML::XPathContext->new->findvalue($xpath, $doc);
 
+my $lastip = readIp;
+
 # print ip to stdout
-if ($config{'print'}) {
+if ($config{'print'} && !($config{'onlychanged'} && $ip eq $lastip)) {
 	print time2str("%Y%m%d-%T", time), " " if ($config{'date'});
 	print $ip, "\n";
 }
 
 # send ip per mail
-if ($config{'mailto'}) {
+if ($config{'mailto'} && !($config{'onlychanged'} && $ip eq $lastip)) {
 	my $mail = Mail::Mailer->new('sendmail');
 	$mail->open({To => $config{'mailto'}, From => $config{'mailfrom'}, Subject => "IP"});
 	print $mail $ip;
 	$mail->close;
 }
+
+writeIp($ip);
 
 __END__
 
@@ -71,6 +97,10 @@ The username to use
 =item pwd
 
 The user's password
+
+=item onlychanged
+
+Do the actions (pringing, mailing, ...) only, if the ip has changed
 
 =item print
 
