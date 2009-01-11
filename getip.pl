@@ -26,7 +26,7 @@ sub readIp {
 
 # reads the ip from the ip file
 sub writeIp {
-	my $ip = shift || die "A ip to write must be given.";
+	my $ip = shift or die "A ip to write must be given.\n";
 	open my $file, ">", $ipFile or die "Couldn't open file:\n" . $!;
 	print $file $ip;
 	close $file or die "Couldn't close file:\n" . $!;
@@ -54,6 +54,7 @@ if ($config{'print'} && !($config{'onlychanged'} && $ip eq $lastip)) {
 
 # send ip per mail
 if ($config{'mailto'} && !($config{'onlychanged'} && $ip eq $lastip)) {
+	$config{'mailfrom'} or die "No from mailaddress given.\n";
 	my $mail = Mail::Mailer->new('sendmail');
 	$mail->open({To => $config{'mailto'}, From => $config{'mailfrom'}, Subject => "IP"});
 	print $mail $ip;
