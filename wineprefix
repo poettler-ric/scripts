@@ -1,0 +1,29 @@
+#!/bin/sh
+
+if [ $# -lt 2 ]
+then
+	echo "usage: $0 <prefix> <executeable>"
+	exit 1
+fi
+
+ENVIRONMENT=$1
+EXECUTEABLE=$2
+
+# setting the wineprefix
+export WINEPREFIX=~/.wine_$(basename $ENVIRONMENT)
+
+# determining the real executeable name and directory
+if [ -r "$EXECUTEABLE" ]
+then
+	DIRNAME=$(dirname $EXECUTEABLE)
+	FILENAME=$(basename $EXECUTEABLE)
+else
+	# we assume all programs to be installed into c:\
+	UNIXFILE="$(echo $EXECUTEABLE | sed -e 's@\\@/@g')"
+	DIRNAME=$WINEPREFIX/drive_c/${UNIXFILE#*/}
+	DIRNAME=${DIRNAME%/*}
+	FILENAME=${UNIXFILE##*/}
+fi
+
+cd "$DIRNAME"
+wine "$FILENAME"
