@@ -12,12 +12,15 @@ EXECUTEABLE=$2
 # setting the wineprefix
 export WINEPREFIX=~/.wine_$(basename $ENVIRONMENT)
 
-# determining the real executeable name and directory
-if [ -r "$EXECUTEABLE" ]
+if [ "$EXECUTEABLE" = "config" ] # we want to configure the environment
+then
+	winecfg
+	exit
+elif [ -r "$EXECUTEABLE" ] # executeable is a real file
 then
 	DIRNAME=$(dirname $EXECUTEABLE)
 	FILENAME=$(basename $EXECUTEABLE)
-else
+else # executeable is relative e.g.: c:\Program Files\...
 	# we assume all programs to be installed into c:\
 	UNIXFILE="$(echo $EXECUTEABLE | sed -e 's@\\@/@g')"
 	DIRNAME=$WINEPREFIX/drive_c/${UNIXFILE#*/}
