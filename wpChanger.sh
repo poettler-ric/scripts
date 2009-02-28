@@ -1,13 +1,6 @@
 #!/bin/bash
 
-while getopts "n" OPT
-do
-	case $OPT in
-		n)
-		NO_DISPLAY=1
-		;;
-	esac
-done
+CONFFILE="$HOME/.wpchanger"
 
 RESOLUTION="1680x1050"
 DIRECTORY="/mnt/data/wp"
@@ -16,6 +9,32 @@ HISTFILE="$HOME/.wp.history"
 
 TMPBLACK="/tmp/black.jpg"
 TMPRESIZE="/tmp/resize.jpg"
+
+if [[ -r $CONFFILE ]]
+then
+	. $CONFFILE
+fi
+
+while getopts "d:h:o:r:s" OPT
+do
+	case $OPT in
+		d)
+		DIRECTORY=$OPTARG
+		;;
+		h)
+		HISTFILE=$OPTARG
+		;;
+		r)
+		RESOLUTION=$OPTARG
+		;;
+		o)
+		IMGFILE=$OPTARG
+		;;
+		s)
+		SHOW=1
+		;;
+	esac
+done
 
 FILES=($(find $DIRECTORY -type f -iname "*.jpg"))
 FILE=${FILES[$(($RANDOM % ${#FILES[*]}))]}
@@ -28,7 +47,7 @@ rm $TMPBLACK $TMPRESIZE
 
 echo $FILE >> $HISTFILE
 
-if [[ -z $NO_DISPLAY ]]
+if [[ "$SHOW" == "1" ]]
 then
 	display -window root $IMGFILE
 fi
