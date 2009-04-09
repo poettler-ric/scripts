@@ -13,8 +13,30 @@ my $outputdir = shift @ARGV | croak "No outputdirectory given";
 #my $wikifile = catfile(qw/c: temp wiki.html/);
 #my $outputdir = catdir(qw/c: temp wikiexport/);
 
+my $linkPattern = qr/\[\[(.*?)\]\]/; # pattern to extract links out of a wikipage's conteng
+my $invalidLinkCharacterPattern = qr/[^\w -.]/; # pattern to match all not allowed characters in a link
+my $invalidLinkCharacterReplacement = "-"; # replacement for invalid characters in a link
+
+sub getNormalizedLinkName {
+	my $linkName = shift or croak "no linkname given";
+	$linkName =~ s/$invalidLinkCharacterPattern/$invalidLinkCharacterReplacement/;
+	return $linkName;
+}
+
+sub getNormalizedContent {
+	my $content = shift or croak "no content given";
+	my %links = map {$_ => 1} $content =~ /$linkPattern/g;
+
+	foreach my $link (keys %links) {
+		my $replacement = "[[" . getNormalizedLinkName($link) . "]]";
+		# FIXME: doesn't work well, if the linkname contains '\'
+		$content =~ s/\[\[$link\]\]/$replacement/g
+	}
+	return $content;
+}
+
 sub getContentWithAttribute {
-	my $tree = shift or die "no tree given";
+	my $tree = shift or croak "no tree given";
 	my $tag = shift;
 	my $attribute = shift;
 	my $value = shift;
@@ -47,7 +69,7 @@ sub getContentWithAttribute {
 }
 
 sub parseStoreDiv {
-	my $tree = shift or die "no tree given";
+	my $tree = shift or croak "no tree given";
 
 	my $attributeHash = $tree->[0];
 
@@ -76,16 +98,15 @@ for (my $iCounter = 1; $iCounter < scalar(@{$storeDiv}); $iCounter += 2) {
 
 	if ($treeTag eq "div") {
 		my $entry = parseStoreDiv($treeContent);
-		print $entry->{'title'}, "\n";
+		print "doing: ", $entry->{'title'}, "\n";
 		$entryCount++;
 
-		# TODO: cleanup the wikititle
-		my $outputfile = catfile($outputdir, $entry->{'title'} . ".txt");
+		my $outputfile = catfile($outputdir, getNormalizedLinkName($entry->{'title'}) . ".txt");
 
 		# dump content into wikifile
 		open my $file, ">", $outputfile or die "couldn't open " . $outputfile . ": " . $!;
-		print $file $entry->{'content'};
+		print $file getNormalizedContent($entry->{'content'});
 		close $file or die "couldn't open " . $outputfile . ": " . $!;
 	}
 }
-print "parsed: ", $entryCount, " entries.\n";
+print "transformed: ", $entryCount, " entries.\n";
