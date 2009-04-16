@@ -42,13 +42,10 @@ sub getContentWithAttribute {
 	my $value = shift;
 
 	my $entryCount = scalar(@{$tree});
-	my $iCounter = 0;
 
-	if ($entryCount % 2) { # we have an ordinary element which might have attributes
-		$iCounter = 1;
-	}
-
-	for ( ; $iCounter < $entryCount; $iCounter += 2) {
+	# we start at index 1 if, we have an ordinary element, which might have
+	#attributes (which are stored at index 0)
+	for (my $iCounter = $entryCount % 2; $iCounter < $entryCount; $iCounter += 2) {
 		my $treeTag = $tree->[$iCounter];
 		my $treeContent = $tree->[$iCounter + 1];
 
