@@ -10,11 +10,15 @@ ENVIRONMENT=$1
 EXECUTEABLE=$2
 
 # setting the wineprefix
-export WINEPREFIX=~/.wine_$(basename $ENVIRONMENT)
+export WINEPREFIX=$HOME/.wine_$(basename $ENVIRONMENT)
 
 if [ "$EXECUTEABLE" = "config" ] # we want to configure the environment
 then
 	winecfg
+	exit
+elif [ "$EXECUTEABLE" = "tricks" ]
+then
+	winetricks $3
 	exit
 elif [ -r "$EXECUTEABLE" ] # executeable is a real file
 then
