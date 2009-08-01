@@ -1,9 +1,54 @@
-#!/bin/sh
+#!/bin/bash
 
 CONFFILE=$HOME/.porndown
 
+cleanup() {
+	# clean up the working files
+	if [ -n "$TMPFILE" ]
+	then
+		rm $TMPFILE
+	fi
+	if [ -n "$DESTINATIONFILE" ]
+	then
+		rm $DESTINATIONFILE
+	fi
+
+	echo ""
+	echo "-- interrupted -> cleaning up --"
+	exit 0
+}
+
+doElement() {
+	ELEMENT=$1
+
+	if [ -r $ELEMENT ]
+	then
+		doFile $ELEMENT
+	else
+		doLink $ELEMENT
+	fi
+}
+
 doFile() {
-	xargs $0 < $1
+	LINKFILE=$1
+
+	# read the file linewise
+	while read LINE
+	do
+		doElement $LINE
+
+		# remove the entry from the file if wanted
+		if [ "$CLEAN_LINKFILES" == "1" ]
+		then
+			sed -e '1d' -i $LINKFILE
+		fi
+	done < $LINKFILE
+
+	# delete the file if wanted
+	if [ "$REMOVE_LINKFILES" == "1" ]
+	then
+		rm $LINKFILE
+	fi
 }
 
 doLink() {
@@ -45,6 +90,8 @@ doLink() {
 	rm $TMPFILE
 }
 
+trap "cleanup" HUP #SIGHUP SIGINT SIGQUIT SIGTERM
+
 # no args given
 if [ $# -lt 1 ]
 then
@@ -64,10 +111,7 @@ fi
 # download the videos
 for arg in $@
 do
-	if [ -r $arg ]
-	then
-		doFile $arg
-	else
-		doLink $arg
-	fi
+	doElement $arg
 done
+
+echo "-- done --"
