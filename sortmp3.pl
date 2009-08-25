@@ -16,6 +16,7 @@ our %options;
 my $mp3FilePattern = qr/.+\.mp3$/;
 my $yearPattern = qr/(\d{4})/;
 my $trackNumPattern = qr/(\d+)/;
+my $invalidFilenamePattern = qr/[^A-Za-z0-9 .,_-]/;
 
 $Getopt::Std::STANDARD_HELP_VERSION = 1;
 getopts("mn", \%options);
@@ -51,6 +52,12 @@ sub VERSION_MESSAGE {
 	print fileparse($0) . " version 0.1 by Richard Pöttler (richard dot poettler at gmail dot com)\n";
 }
 
+sub makeValidFilepart {
+	my $string = shift;
+	$string =~ s/$invalidFilenamePattern//g;
+	return $string;
+}
+
 sub analyzeFile {
 	if ( -r $File::Find::name && -f _ && $File::Find::name =~ $mp3FilePattern) {
 		my $tags = get_mp3tag($File::Find::name);
@@ -75,10 +82,11 @@ sub analyzeFile {
 
 		# compute the new filename
 		my $destFilename = catfile($outputDirectory,
-				$tags->{"ARTIST"},
-				$tags->{"ALBUM"},
-				sprintf("%.2d %s.mp3", $tags->{"TRACKNUM"}, $tags->{"TITLE"}));
-		$destFilename =~ tr/[]/()/; # "[]" are not allowed in filenames
+				makeValidFilepart($tags->{"ARTIST"}),
+				makeValidFilepart($tags->{"ALBUM"}),
+				makeValidFilepart(sprintf("%.2d %s.mp3",
+						$tags->{"TRACKNUM"},
+						$tags->{"TITLE"})));
 		my (undef, $destDir) = fileparse($destFilename);
 		print $destFilename, "\n";
 
