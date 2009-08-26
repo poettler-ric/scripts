@@ -5,7 +5,7 @@ CONFFILE="$HOME/.wpchanger"
 RESOLUTION="1680x1050"
 DIRECTORY="/mnt/data/wp"
 IMGFILE="$HOME/.wp.jpg"
-HISTFILE="$HOME/.wp.history"
+HISTORYFILE="$HOME/.wp.history"
 SETCOMMAND="gconftool-2 --type string --set /desktop/gnome/background/picture_filename $IMGFILE"
 
 TMPBLACK="/tmp/black.jpg"
@@ -29,7 +29,7 @@ do
 		DIRECTORY=$OPTARG
 		;;
 		h)
-		HISTFILE=$OPTARG
+		HISTORYFILE=$OPTARG
 		;;
 		r)
 		RESOLUTION=$OPTARG
@@ -49,7 +49,10 @@ composite -gravity center $TMPRESIZE $TMPBLACK -compose src-over $IMGFILE
 
 rm $TMPBLACK $TMPRESIZE
 
-echo $FILE >> $HISTFILE
+if [[ -n "$HISTORYFILE" ]]
+then
+	echo $FILE >> $HISTORYFILE
+fi
 
 if [[ "$EXECUTE" == "1" ]]
 then
