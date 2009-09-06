@@ -1,16 +1,13 @@
 #!/usr/bin/perl
 
-use strict;
-use warnings;
-
 use Carp;
+use common::sense;
 use File::Basename;
 use File::Find;
 use File::Path;
 use Getopt::Std;
+use HTML::TreeBuilder;
 use LWP::UserAgent;
-use XML::LibXML;
-use XML::LibXML::XPathContext;
 
 # command line options
 my %opts = ();
@@ -36,10 +33,6 @@ my $urlImage = "http://wallpapers.skins.be/\@name/\@name-\@resolution-\@id.jpg";
 
 # precompiled regexp to geht some data out of a imagelink ($1 = name, $2 = id, # $3 = resolution)
 my $nodeDataRegexp = qr/http:\/\/wallpaper.skins.be\/([\w-]+)\/(\d+)\/(\d+x\d+)\//;
-
-# the xml parser
-my $parser = XML::LibXML->new();
-$parser->recover_silently(1);
 
 # setting up the user agent
 my $ua = LWP::UserAgent->new('agent' => 'Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.1.8) Gecko/20071023 Firefox/2.0.0.8');
@@ -80,24 +73,12 @@ wpLeecher version $VERSION
 eof
 }
 
-sub getImageNodes {
-	my ($page) = @_;
-	# getting the content
-	my $response = $ua->get($page);
-	croak $response->message unless $response->is_success;
-	# parsing the content
-	my $doc = $parser->parse_html_string($response->content);
-	my $xpc = XML::LibXML::XPathContext->new($doc);
-	return $xpc->findnodes("//div[\@class='motive']");
-}
-
 sub getNodeData {
 	my ($node) = @_;
-	my $xpc = XML::LibXML::XPathContext->new($node);
 
 	# get the resolution
-	my @resLinks = $xpc->findnodes("div[\@class='motiveCont']/div[\@class='motiveRes']/ul/li/a/\@href");
-	my $largest = (map {$_->textContent} @resLinks)[-1];
+	my @resLinks = $node->look_down("_tag" => "ul", "class" => "resolutionListing")->look_down("_tag" => "a");
+	my $largest = (map {$_->attr("href")} @resLinks)[-1];
 
 	# extracting the data from the link
 	$largest =~ $nodeDataRegexp;
@@ -110,9 +91,9 @@ sub getLastPage {
 	my $response = $ua->get($urlRoot);
 	croak $response->message unless $response->is_success;
 	# parsing the content
-	my $doc = $parser->parse_html_string($response->content);
-	my $xpc = XML::LibXML::XPathContext->new($doc);
-	my $text = $xpc->findnodes("//div[\@id='pagination']/h3/text()");
+	my $tree = HTML::TreeBuilder->new_from_content($response->content);
+	my $text = (($tree->look_down("_tag" => "div", "id" => "pagination")->content_list)[0]->content_list)[0];
+	$tree->delete;
 	$text =~ /Page \d+ of (\d+)/;
 	return $1;
 }
@@ -152,6 +133,7 @@ sub downloadImage {
 
 		# saving the file
 		open my $fh, ">", $file || croak $!;
+		binmode $fh;
 		print $fh $response->content;
 		close $fh || croak $!;
 		return 1;
@@ -193,10 +175,20 @@ sub doNewestPage {
 
 	print "doing: ", $url, "\n";
 
-	for my $node (getImageNodes($url)) {
+	# downloading the imagelist
+	my $response = $ua->get($url);
+	croak $response->message unless $response->is_success;
+
+	my $tree = HTML::TreeBuilder->new_from_content($response->content);
+
+	# getting the image nodes
+	for my $node ($tree->look_down("_tag" => "div", "class" => "motive")) {
 		my ($id, $name, $resolution) = getNodeData($node);
 		$gotNewPicture |= downloadImage($id, $name, $resolution);
 	}
+
+	$tree->delete;
+
 	return $gotNewPicture;
 }
 
