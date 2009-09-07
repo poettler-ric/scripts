@@ -94,9 +94,17 @@ sub getLastPage {
 	my $url = shift or croak "no url given";
 	my $response = $ua->get($url);
 	croak $response->message unless $response->is_success;
+
 	# parsing the content
 	my $tree = HTML::TreeBuilder->new_from_content($response->content);
-	my $text = (($tree->look_down("_tag" => "div", "id" => "pagination")->content_list)[0]->content_list)[0];
+	my $paginationDiv = $tree->look_down("_tag" => "div", "id" => "pagination");
+
+	if (!$paginationDiv) {
+		$tree->delete;
+		return 1;
+	}
+	
+	my $text = (($paginationDiv->content_list)[0]->content_list)[0];
 	$tree->delete;
 	$text =~ /Page \d+ of (\d+)/;
 	return $1;
