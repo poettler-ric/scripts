@@ -8,7 +8,7 @@ use File::Basename;
 use File::Copy;
 use File::Find;
 use File::Path;
-use File::Spec::Functions qw(catfile splitdir);
+use File::Spec::Functions qw(catfile splitdir rel2abs);
 use Getopt::Std;
 use MP3::Info;
 
@@ -35,6 +35,10 @@ if (!@sourceDirectories) {
 	HELP_MESSAGE();
 	exit 2;
 }
+
+# make absolute filenames
+$outputDirectory = rel2abs($outputDirectory);
+@sourceDirectories = map {rel2abs($_)} @sourceDirectories;
 
 sub HELP_MESSAGE {
 	my $progName = fileparse($0);
