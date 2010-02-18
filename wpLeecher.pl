@@ -38,6 +38,7 @@ my $nodeDataRegexp = qr/http:\/\/wallpaper.skins.be\/([\w-]+)\/(\d+)\/(\d+x\d+)\
 
 # setting up the user agent
 my $ua = LWP::UserAgent->new('agent' => 'Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.1.8) Gecko/20071023 Firefox/2.0.0.8');
+$ua->env_proxy;
 
 # files which should be considered to be already donwloaded
 my %downloaded = ();
