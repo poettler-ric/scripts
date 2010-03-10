@@ -81,7 +81,11 @@ sub getNodeData {
 	my ($node) = @_;
 
 	# get the resolution
-	my @resLinks = $node->look_down("_tag" => "ul", "class" => "resolutionListing")->look_down("_tag" => "a");
+	my $resolutionListing = $node->look_down("_tag" => "ul",
+			"class" => "resolutionListing");
+	# if this is a ul with some porno ads
+	return if (!defined($resolutionListing));
+	my @resLinks = $resolutionListing->look_down("_tag" => "a");
 	my $largest = (map {$_->attr("href")} @resLinks)[-1];
 
 	# extracting the data from the link
@@ -198,6 +202,8 @@ sub doPage {
 	# getting the image nodes
 	for my $node ($tree->look_down("_tag" => "div", "class" => "motive")) {
 		my ($id, $name, $resolution) = getNodeData($node);
+		# we got a porno add...
+		next if (!$id);
 		$gotNewPicture |= downloadImage($id, $name, $resolution);
 	}
 
