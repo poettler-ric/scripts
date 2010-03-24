@@ -1,7 +1,6 @@
 #!/usr/bin/perl
 
-use strict;
-use warnings;
+use common::sense;
 
 use Carp;
 use File::Basename;
@@ -53,7 +52,10 @@ EOF
 }
 
 sub VERSION_MESSAGE {
-	print fileparse($0) . " version 0.1 by Richard Pöttler (richard dot poettler at gmail dot com)\n";
+	print fileparse($0) . " "
+		. "version 0.1 "
+		. "by Richard Pöttler "
+		. "(richard dot poettler at gmail dot com)\n";
 }
 
 sub makeValidFilepart {
@@ -63,26 +65,9 @@ sub makeValidFilepart {
 }
 
 sub analyzeFile {
-	if ( -r $File::Find::name && -f _ && $File::Find::name =~ $mp3FilePattern) {
+	if ( -r $File::Find::name
+			&& -f _ && $File::Find::name =~ $mp3FilePattern) {
 		my $tags = get_mp3tag($File::Find::name);
-
-		# getting the filepotions of the source file
-		my ($srcFile, $srcDir) = fileparse($File::Find::name);
-
-		# no tracknumber at all -> determine one using the source filename
-		if ($tags->{"TRACKNUM"} eq "") {
-			$srcFile =~ $trackNumPattern;
-			$tags->{"TRACKNUM"} = sprintf("%.2d", $1);
-		} elsif ($tags->{"TRACKNUM"} !~ /^\d+$/) { # try to reuse the tag
-			$tags->{"TRACKNUM"} =~ $trackNumPattern;
-			$tags->{"TRACKNUM"} = sprintf("%.2d", $1);
-		}
-
-		# determine the year (4 digits) from the directory containing the mp3 file
-		my @dirs = grep {$_} splitdir($srcDir); # there can be directories with a name of ""
-		if (pop(@dirs) =~ $yearPattern) {
-			$tags->{"YEAR"} = $1;
-		}
 
 		# compute the new filename
 		my $destFilename = catfile($outputDirectory,
@@ -98,11 +83,16 @@ sub analyzeFile {
 		return if ($options{"n"});
 
 		# create the directory and copy/move the file
-		mkpath($destDir) or croak "Can't create dir: " . $destDir if (! -d $destDir);
+		if (! -d $destDir) {
+			mkpath($destDir)
+				or croak "Can't create dir: " . $destDir;
+		}
 		if ($options{"m"}) {
-			move($File::Find::name, $destFilename) or croak "Move failed: $!";
+			move($File::Find::name, $destFilename)
+				or croak "Move failed: $!";
 		} else {
-			copy($File::Find::name, $destFilename) or croak "Copy failed: $!";
+			copy($File::Find::name, $destFilename)
+				or croak "Copy failed: $!";
 		}
 
 		# set the corrected mp3 tags
