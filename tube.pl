@@ -66,8 +66,7 @@ sub downloadVideoFromPage {
 
 	say "doing: ", $outputFile;
 
-# FIXME: make nice unix names
-	$outputFile =~ s/ /_/g;
+	$outputFile =~ s/[^a-zA-Z0-9_-]+/_/g;
 	$outputFile .= ".flv";
 	$outputFile = catfile($actualDir, $outputFile);
 
