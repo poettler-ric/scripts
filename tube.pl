@@ -1,5 +1,7 @@
 #!/usr/bin/perl
 
+# TODO: add logic to theck for dublicates
+
 use common::sense;
 
 use Config::General qw(ParseConfig);
@@ -56,7 +58,7 @@ sub downloadVideoFromPage {
 	die "error while getting page: " . $response->message
 		unless $response->is_success;
 
-	# TODO: handle case, when output file already exists
+# TODO: handle case, when output file already exists
 	$response->content =~ $videoPattern;
 	my $videoUrl = $1;
 	$response->content =~ $titlePattern;
@@ -64,6 +66,7 @@ sub downloadVideoFromPage {
 
 	say "doing: ", $outputFile;
 
+# FIXME: make nice unix names
 	$outputFile =~ s/ /_/g;
 	$outputFile .= ".flv";
 	$outputFile = catfile($actualDir, $outputFile);
@@ -106,7 +109,7 @@ sub searchForLinks {
 	# if we are on the first page, check which pages we have to go
 	if ($page == 1) {
 		my $paginationDif = $tree->look_down("_tag" => "div", "class" => "footer-pagination");
-		# TODO: at the moment only 12 pages get recognized
+# TODO: at the moment only 12 pages get recognized
 		@pages = grep { /\d+/ && !/^$page$/}
 			map { $_->as_text } $paginationDif->look_down("_tag" => "li");
 	}
@@ -126,6 +129,7 @@ sub onFileFinish {
 }
 
 sub syncLinkFile {
+# FIXME: something seems to be wrong with the strikeout/reload logic
 	# read linkfile
 	die "linkfile (", $linkFile, ") is not a readable file" if (!-r $linkFile);
 	open my $file, "<", $linkFile or die "can't open linkfile for reading";
