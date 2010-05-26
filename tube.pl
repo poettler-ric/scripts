@@ -16,7 +16,7 @@ use String::Util qw(trim);
 my $videoPattern = qr/var videourl="([^"]+)"/;
 my $titlePattern = qr/<title>([^-]+).*<\/title>/;
 my $timePattern = qr/((\d+):)?(\d{1,2}):(\d{1,2})/;
-my $linkfilePattern = qr/((\w+)|)?(http:\/\/.*)/;
+my $linkfilePattern = qr/((\w+)\|)?(http:\/\/.*)/;
 
 my $searchUrlPattern = "http://www.tube8.com/search.html?q=%s&page=%d";
 
