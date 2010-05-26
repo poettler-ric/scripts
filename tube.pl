@@ -26,7 +26,7 @@ my $ua = LWP::UserAgent->new(
 
 # options from the command line
 my %opts = ();
-getopts("s", \%opts);
+getopts("ps", \%opts);
 
 # read the config file
 my %conf = ();
@@ -96,7 +96,11 @@ sub searchForLinks {
 
 		next if ($conf{'MIN_MINUTES'} && ($minutes < $conf{'MIN_MINUTES'}));
 
-		say $folder, "|", $link;
+		if ($opts{"p"}) {
+			say $folder, "|", $link;
+		} else {
+			$links{$link} = $folder;
+		}
 	}
 
 	# if we are on the first page, check which pages we have to go
@@ -125,7 +129,10 @@ sub syncLinkFile {
 	# read linkfile
 	die "linkfile (", $linkFile, ") is not a readable file" if (!-r $linkFile);
 	open my $file, "<", $linkFile or die "can't open linkfile for reading";
-	%links = map {/$linkfilePattern/; $3 => $2} <$file>;
+	foreach (<$file>) {
+		/$linkfilePattern/;
+		$links{$3} = $2;
+	}
 	close $file or die "can't close linkfile";
 
 	# remove unwanted links
@@ -135,19 +142,16 @@ sub syncLinkFile {
 	die "linkfile (", $linkFile, ") is not a writeable file" if (-e $linkFile && !-w _);
 	open my $file, ">", $linkFile or die "can't open linkfile for writing";
 	while (my ($key, $value) = each %links) {
-		print $file $value, "|", $key, "\n";
+		print $file ($value ? $value . "|" : ""), $key, "\n";
 	}
 	close $file or die "can't close linkfile";
 }
 
+syncLinkFile();
+
 if ($opts{'s'}) {
-	say "searching";
 	searchForLinks();
 } else {
-	say "doing file";
-
-	syncLinkFile();
-
 	$pm->run_on_finish(\&onFileFinish);
 
 	# iterate over the links (we don't use foreach, because it holds an unalterable
@@ -160,3 +164,5 @@ if ($opts{'s'}) {
 
 	$pm->wait_all_children;
 }
+
+syncLinkFile();
