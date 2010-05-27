@@ -46,6 +46,8 @@ my $outputDir = eval($conf{'OUTPUT_DIR'});
 
 # links holding all links for pages to parse
 my %links;
+# links which we are currently downloading
+my %workInProgress = ();
 
 
 sub downloadVideoFromPage {
@@ -128,7 +130,6 @@ sub onFileFinish {
 }
 
 sub syncLinkFile {
-# FIXME: something seems to be wrong with the strikeout/reload logic
 	# read linkfile
 	die "linkfile (", $linkFile, ") is not a readable file" if (!-r $linkFile);
 	open my $file, "<", $linkFile or die "can't open linkfile for reading";
@@ -150,6 +151,10 @@ sub syncLinkFile {
 	close $file or die "can't close linkfile";
 }
 
+sub popNextDownload {
+	return (grep {!$workInProgress{$_}} keys %links)[0];
+}
+
 syncLinkFile();
 
 if ($opts{'s'}) {
@@ -159,9 +164,10 @@ if ($opts{'s'}) {
 
 	# iterate over the links (we don't use foreach, because it holds an unalterable
 	# copy of the array, so the changes to the array don't have any effect)
-	while (my ($url, $directory) = each %links) {
+	while (my $url = popNextDownload()) {
+		$workInProgress{$url} = 1;
 		my $pid = $pm->start($url) and next;
-		downloadVideoFromPage($url, $directory);
+		downloadVideoFromPage($url, $links{$url});
 		$pm->finish;
 	}
 
