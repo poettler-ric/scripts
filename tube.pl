@@ -61,18 +61,22 @@ sub downloadVideoFromPage {
 	die "error while getting page: " . $response->message
 		unless $response->is_success;
 
-# TODO: handle case, when output file already exists
 	$response->content =~ $videoPattern;
 	my $videoUrl = $1;
 	$response->content =~ $titlePattern;
-	my $fileName = trim($1);
+	my $title = trim($1);
+	$title =~ s/[^a-zA-Z0-9_-]+/_/g;
 
-	say "doing: ", $fileName;
-
-	$fileName =~ s/[^a-zA-Z0-9_-]+/_/g;
-	$fileName .= ".flv";
-	my $tmpFile = catfile(tmpdir(), $fileName);
+	# compute the filename
+	my $fileName = $title . ".flv";
 	my $resultFile = catfile($actualDir, $fileName);
+	# while the resulting file exists increate the added counter
+	my $counter = 1;
+	while (-e $resultFile) {
+		$fileName = $title . "_" . $counter++ . ".flv";
+		$resultFile = catfile($actualDir, $fileName);
+	}
+	my $tmpFile = catfile(tmpdir(), $fileName);
 
 	make_path($actualDir);
 
