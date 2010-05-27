@@ -130,7 +130,7 @@ sub searchForLinks {
 sub onFileFinish {
 	my ($pid, $exit_code, $link) = @_;
 
-	say "finished ", $link;
+	say "finished: ", $link;
 
 	# save only outstanding links
 	syncLinkFile($link);
