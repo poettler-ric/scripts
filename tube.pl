@@ -5,9 +5,10 @@
 use common::sense;
 
 use Config::General qw(ParseConfig);
+use File::Copy;
 use File::HomeDir;
 use File::Path qw(make_path);
-use File::Spec::Functions qw(catfile catdir rel2abs);
+use File::Spec::Functions qw(catfile catdir rel2abs tmpdir);
 use Getopt::Std;
 use HTML::TreeBuilder;
 use LWP::UserAgent;
@@ -64,19 +65,21 @@ sub downloadVideoFromPage {
 	$response->content =~ $videoPattern;
 	my $videoUrl = $1;
 	$response->content =~ $titlePattern;
-	my $outputFile = trim($1);
+	my $fileName = trim($1);
 
-	say "doing: ", $outputFile;
+	say "doing: ", $fileName;
 
-	$outputFile =~ s/[^a-zA-Z0-9_-]+/_/g;
-	$outputFile .= ".flv";
-	$outputFile = catfile($actualDir, $outputFile);
+	$fileName =~ s/[^a-zA-Z0-9_-]+/_/g;
+	$fileName .= ".flv";
+	my $tmpFile = catfile(tmpdir(), $fileName);
+	my $resultFile = catfile($actualDir, $fileName);
 
 	make_path($actualDir);
 
-	$response = $ua->get($videoUrl, ':content_file' => $outputFile);
+	$response = $ua->get($videoUrl, ':content_file' => $tmpFile);
 	die "error while getting video: " . $response->message
 		unless $response->is_success;
+	move($tmpFile, $resultFile);
 }
 
 sub searchForLinks {
