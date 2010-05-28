@@ -1,7 +1,5 @@
 #!/usr/bin/perl
 
-# TODO: add logic to theck for dublicates
-
 use common::sense;
 
 use Config::General qw(ParseConfig);
@@ -41,7 +39,7 @@ foreach my $configfile (catfile(File::HomeDir->my_home, "_tube"),
 # TODO: make linkfile configurable
 my $linkFile = "todo.txt";
 
-my $pm = new Parallel::ForkManager($conf{'MAX_PROCESSES'} or 3);
+my $pm = new Parallel::ForkManager($conf{'MAX_PROCESSES'} || 3);
 
 my $outputDir = eval($conf{'OUTPUT_DIR'});
 
@@ -78,11 +76,11 @@ sub downloadVideoFromPage {
 	}
 	my $tmpFile = catfile(tmpdir(), $fileName);
 
-	make_path($actualDir);
-
 	$response = $ua->get($videoUrl, ':content_file' => $tmpFile);
 	die "error while getting video: " . $response->message
 		unless $response->is_success;
+
+	make_path($actualDir);
 	move($tmpFile, $resultFile);
 }
 
