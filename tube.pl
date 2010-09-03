@@ -27,7 +27,7 @@ my $ua = LWP::UserAgent->new(
 
 # options from the command line
 my %opts = ();
-getopts("ps", \%opts);
+getopts("s", \%opts);
 
 # read the config file
 my %conf = ();
