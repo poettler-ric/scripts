@@ -115,9 +115,11 @@ sub searchForLinks {
 	# if we are on the first page, check which pages we have to go
 	if ($page == 1) {
 		my $paginationDif = $tree->look_down("_tag" => "div", "class" => "footer-pagination");
+		if ($paginationDif) {
 # TODO: at the moment only 12 pages get recognized
-		@pages = grep { /\d+/ && !/^$page$/}
-			map { $_->as_text } $paginationDif->look_down("_tag" => "li");
+			@pages = grep { /\d+/ && !/^$page$/}
+				map { $_->as_text } $paginationDif->look_down("_tag" => "li");
+		}
 	}
 
 	$tree->delete;
