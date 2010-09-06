@@ -12,6 +12,7 @@ use HTML::TreeBuilder;
 use LWP::UserAgent;
 use Parallel::ForkManager;
 use String::Util qw(trim);
+use Time::Format qw(%time);
 
 
 my $videoPattern = qr/var videourl="([^"]+)"/;
@@ -44,6 +45,7 @@ my $linkFile = "todo.txt";
 my $pm = new Parallel::ForkManager($conf{'MAX_PROCESSES'} || 3);
 
 my $outputDir = eval($conf{'OUTPUT_DIR'});
+my $linkDir = catdir($outputDir, $time{'yyyymmdd'});
 
 # links holding all links for pages to parse
 my %links;
@@ -92,6 +94,10 @@ sub downloadVideoFromPage {
 	# copy the file to the resulting directory
 	make_path($actualDir);
 	move($tmpFile, $resultFile);
+
+	# create the link
+	make_path($linkDir);
+	eval {symlink $resultFile, catfile($linkDir, $fileName)};
 }
 
 ## @fn $ searchForLinks(@pagenumbers)
