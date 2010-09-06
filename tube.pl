@@ -49,6 +49,12 @@ my %links;
 my %workInProgress = ();
 
 
+## @fn $ downloadVideoFromPage($url, $subdirectory)
+# Downloads a file under a given page.
+# Parses the given url for a video and downloads it to a given outputdirectory
+# concated by a optionally given subdirectory.
+# @param url containing the file
+# @param subdirectory to download the file to
 sub downloadVideoFromPage {
 	my $url = shift or warn "no url given";
 	my $actualDir = catdir($outputDir, shift);
@@ -59,6 +65,7 @@ sub downloadVideoFromPage {
 	die "error while getting page: " . $response->message
 		unless $response->is_success;
 
+	# gather the infos from the downloaded pagecontent
 	$response->content =~ $videoPattern;
 	my $videoUrl = $1;
 	$response->content =~ $titlePattern;
@@ -80,17 +87,27 @@ sub downloadVideoFromPage {
 	die "error while getting video: " . $response->message
 		unless $response->is_success;
 
+	# copy the file to the resulting directory
 	make_path($actualDir);
 	move($tmpFile, $resultFile);
 }
 
+## @fn $ searchForLinks(@pagenumbers)
+# Searches for links to download.
+# Searches a page based on the command line arguments and given pagenumbers for
+# links to download. If no pagenumbers are given a pagination div is searched
+# for pagenumbers.
+# @param pagenumbers to search next
 sub searchForLinks {
 	my @pages = @_;
+	# if we don't have a page, start at page one
 	my $page = shift @pages || 1;
 
+	# compute the search url by the search parameters and the actual page
 	my $url = sprintf($searchUrlPattern, join("+", @ARGV), $page);
 	my $folder = join("_", @ARGV);
 
+	# retrieves the page and searches for the thumbs
 	my $response = $ua->get($url);
 	die "error while getting page: " . $response->message
 		unless $response->is_success;
@@ -116,7 +133,7 @@ sub searchForLinks {
 	if ($page == 1) {
 		my $paginationDif = $tree->look_down("_tag" => "div", "class" => "footer-pagination");
 		if ($paginationDif) {
-# TODO: at the moment only 12 pages get recognized
+			# TODO: at the moment only 12 pages get recognized
 			@pages = grep { /\d+/ && !/^$page$/}
 				map { $_->as_text } $paginationDif->look_down("_tag" => "li");
 		}
@@ -124,6 +141,7 @@ sub searchForLinks {
 
 	$tree->delete;
 
+	# search over the next gathered pagenumbers
 	searchForLinks(@pages) if (@pages);
 }
 
@@ -136,6 +154,11 @@ sub onFileFinish {
 	syncLinkFile($link);
 }
 
+## @fn $ syncLinkFile(@done_links)
+# Syncronize the linkfile.
+# Syncronisation is done by reading the linkfile, removing all done links and
+# writing the file again.
+# @param done_links links which are done and should be removed from the file
 sub syncLinkFile {
 	# read linkfile
 	die "linkfile (", $linkFile, ") is not a readable file" if (!-r $linkFile);
@@ -158,6 +181,9 @@ sub syncLinkFile {
 	close $file or die "can't close linkfile";
 }
 
+## @fn $ popNextDownload()
+# Returns the next url to download
+# @return the next url
 sub popNextDownload {
 	return (grep {!$workInProgress{$_}} keys %links)[0];
 }
