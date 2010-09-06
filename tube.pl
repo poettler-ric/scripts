@@ -27,7 +27,9 @@ my $ua = LWP::UserAgent->new(
 
 # options from the command line
 my %opts = ();
-getopts("s", \%opts);
+# p for only printing out the links
+# s for searching for new links
+getopts("ps", \%opts);
 
 # read the config file
 my %conf = ();
