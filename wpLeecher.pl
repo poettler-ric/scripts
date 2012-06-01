@@ -227,6 +227,7 @@ if ($opts{"g"}) {
 	my $name = $opts{"g"};
 	$name = lc($name);
 	$name =~ s/ /-/g;
+	$name =~ s/_/-/g;
 
 	$urlPattern = $urlBabePagePattern;
 	$urlPattern =~ s/\@name/$name/g;
