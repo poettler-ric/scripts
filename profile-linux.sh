@@ -18,27 +18,23 @@ echo
 
 # get memory reading
 # order: total used free
-echo -n $prefix:mem:
-echo -n " `free -m | sed -n -e '2p' | tr -s ' ' | cut -d ' ' -f 2`"
-echo -n " `free -m | sed -n -e '3p' | tr -s ' ' | cut -d ' ' -f 3,4`"
-echo
+echo -n $prefix:mem:" "
+echo -n `free -m | sed -n -e '2p' | tr -s ' ' | cut -d ' ' -f 2`
+echo " "`free -m | sed -n -e '3p' | tr -s ' ' | cut -d ' ' -f 3,4`
 
 # get swap reading
 # order: total used free
-echo -n $prefix:swap:
-echo -n " `free -m | sed -n -e '4p' | tr -s ' ' | cut -d ' ' -f 2,3,4`"
-echo
+echo -n $prefix:swap:" "
+free -m | sed -n -e '4p' | tr -s ' ' | cut -d ' ' -f 2,3,4
 
 # get load reading
 # order: last1m last5m last15m
-echo -n $prefix:load:
-echo -n " `cat /proc/loadavg | tr -s ' ' | cut -d ' ' -f 1,2,3`"
-echo
+echo -n $prefix:load:" "
+cat /proc/loadavg | tr -s ' ' | cut -d ' ' -f 1,2,3
 
 # get nic reading in bytes
 # order: nic1 nic1-rx nic1-tx nic2 nic2-rx nic2-tx ... nicn nicn-rx nicn-tx
-echo -n $prefix:nic:
-echo -n " "
+echo -n $prefix:nic:" "
 cat /proc/net/dev | sed -n -e '/eth/p' | sed -e 's/^[ \t]*//' | tr -d : \
 	| tr -s ' ' | cut -d ' ' -f 1,2,10 | tr '\n' ' '
 echo
