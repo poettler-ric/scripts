@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# needed so we have the right amount of fields when reading the cpu load
+export LC_TIME=en_US.UTF-8
+
 time=`date +%Y%m%d-%H%M`
 
 # get cpu reading
