@@ -38,3 +38,10 @@ echo -n $prefix:nic:" "
 cat /proc/net/dev | sed -n -e '/eth/p' | sed -e 's/^[ \t]*//' | tr -d : \
 	| tr -s ' ' | cut -d ' ' -f 1,2,10 | tr '\n' ' '
 echo
+
+# get hdd reading in megabytes
+# order: dev1 total1 used1 free1 mount1 dev2 total1 used2 free1 mount2 ...
+echo -n $prefix:hdd:" "
+df -BM | sed -n -e '/^\/dev/p' | sed -e 's/\([0-9]\+\)M/\1/g' \
+	| tr -s ' ' | cut -d ' ' -f 1,2,3,4,6 | tr '\n' ' '
+echo
