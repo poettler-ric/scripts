@@ -8,19 +8,11 @@ LOCAL_DIR=/calc/sgeadmin
 # minimum delay between syncronizations in seconds
 MINIMUM_DELAY=$((5*60))
 
-debug() {
-	if [ $DEBUG ]
-	then
-		echo $@
-	fi
-}
-
-debug minimum delay: $MINIMUM_DELAY
+$DEBUG # use with 'export DEBUG="set -x"'
 
 while true
 do
 	LAST_RUN=`date +%s`
-	debug last run: $LAST_RUN
 
 	for i in `seq 1 $NUMBER_OF_NODES`
 	do
@@ -33,7 +25,6 @@ do
 	if [ $TIME_DIFF -gt 0 ]
 	then
 		TO_SLEEP=$(($MINIMUM_DELAY-$TIME_DIFF))
-		debug sleeping: $TO_SLEEP
 		sleep $TO_SLEEP
 	fi
 done
