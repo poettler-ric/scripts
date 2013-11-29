@@ -29,12 +29,12 @@ free -m | sed -n -e '4p' | tr -s ' ' | cut -d ' ' -f 2,3,4
 # get load reading
 # order: last1m last5m last15m
 printf "%s:load: " "$prefix"
-cat /proc/loadavg | tr -s ' ' | cut -d ' ' -f 1,2,3
+tr -s ' ' < /proc/loadavg | cut -d ' ' -f 1,2,3
 
 # get nic reading in bytes
 # order: nic1 nic1-rx nic1-tx nic2 nic2-rx nic2-tx ... nicn nicn-rx nicn-tx
 printf "%s:nic: " "$prefix"
-cat /proc/net/dev | sed -n -e '/eth/p' | sed -e 's/^[ \t]*//' | tr -d : \
+sed -n -e '/eth/p' /proc/net/dev | sed -e 's/^[ \t]*//' | tr -d : \
 	| tr -s ' ' | cut -d ' ' -f 1,2,10 | tr '\n' ' '
 echo
 
