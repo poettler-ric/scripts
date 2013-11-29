@@ -21,7 +21,8 @@ do
 		rsync -arc $NODE:$REMOTE_DIR $LOCAL_DIR
 	done
 
-	TIME_DIFF=$((`date +%s`-$LAST_RUN))
+	NOW=`date +%s`
+	TIME_DIFF=$(($NOW-$LAST_RUN))
 	if [ $TIME_DIFF -gt 0 ]
 	then
 		TO_SLEEP=$(($MINIMUM_DELAY-$TIME_DIFF))
