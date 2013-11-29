@@ -3,15 +3,15 @@
 # needed so we have the right amount of fields when reading the cpu load
 export LC_TIME=en_US.UTF-8
 
-time=`date +%Y%m%d-%H%M`
-prefix=`hostname`:$time
+time="$(date +%Y%m%d-%H%M)"
+prefix="$(hostname):$time"
 
 # get cpu reading
 # order: overall cpu1 cpu2 ... cpun
 printf "%s:cpu:" "$prefix"
-for idle in `mpstat -P ALL | sed -e '1,3d' | tr -s ' ' | cut -d ' ' -f 12`
+for idle in $(mpstat -P ALL | sed -e '1,3d' | tr -s ' ' | cut -d ' ' -f 12)
 do
-	usage=`echo "100-$idle" | bc`
+	usage="$(echo "100-$idle" | bc)"
 	printf " %s" "$usage"
 done
 echo
