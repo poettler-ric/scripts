@@ -16,9 +16,9 @@ do
 
 	for i in `seq 1 $NUMBER_OF_NODES`
 	do
-		NODE=`printf "node%03d" $i`
-		echo syncing $NODE
-		rsync -arc $NODE:$REMOTE_DIR $LOCAL_DIR
+		NODE=`printf "node%03d" "$i"`
+		echo "syncing $NODE"
+		rsync -arc "$NODE:$REMOTE_DIR" "$LOCAL_DIR"
 	done
 
 	NOW=`date +%s`
