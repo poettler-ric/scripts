@@ -11,7 +11,7 @@ prefix=`hostname`:$time
 printf "%s:cpu:" "$prefix"
 for idle in `mpstat -P ALL | sed -e '1,3d' | tr -s ' ' | cut -d ' ' -f 12`
 do
-	usage=`echo 100-$idle | bc`
+	usage=`echo "100-$idle" | bc`
 	printf " %s" "$usage"
 done
 echo
