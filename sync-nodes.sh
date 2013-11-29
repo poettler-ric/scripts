@@ -12,16 +12,16 @@ $DEBUG # use with 'export DEBUG="set -x"'
 
 while true
 do
-	LAST_RUN=`date +%s`
+	LAST_RUN=$(date +%s)
 
-	for i in `seq 1 $NUMBER_OF_NODES`
+	for i in $(seq 1 $NUMBER_OF_NODES)
 	do
-		NODE=`printf "node%03d" "$i"`
+		NODE=$(printf "node%03d" "$i")
 		echo "syncing $NODE"
 		rsync -arc "$NODE:$REMOTE_DIR" "$LOCAL_DIR"
 	done
 
-	NOW=`date +%s`
+	NOW=$(date +%s)
 	TIME_DIFF=$((NOW-LAST_RUN))
 	if [ $TIME_DIFF -gt 0 ]
 	then
