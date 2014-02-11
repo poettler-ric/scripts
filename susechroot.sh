@@ -2,16 +2,16 @@
 
 # script to create build chroot on suse
 
-BIND_MOUNTS="/dev /proc /var/cache/zypp/packages /usr/src/packages/SOURCES"
+BIND_MOUNTS="/dev /proc /var/cache/zypp/packages /usr/src/packages/SOURCES $CCACHE_DIR"
 REPOSITORIES="repo-oss repo-non-oss repo-update repo-update-non-oss"
 #BASE_PACKAGES="zypper"
 BASE_PACKAGES=""
 DEV_PACKAGES="rpm-build"
 #COPY_FILES="/etc/resolv.conf"
 COPY_FILES=""
+COMPILERS="cc gcc c++ g++"
 
 # TODO: copy users / groups?
-# TODO: ccache
 # TODO: implement commands "count-files", "diff-files"
 
 bind_mount() {
@@ -19,8 +19,11 @@ bind_mount() {
 
 	for i in $BIND_MOUNTS
 	do
-		mkdir -p "${ROOT}${i}"
-		mount -B "$i" "${ROOT}${i}"
+		if [ -d "$i" ]
+		then
+			mkdir -p "${ROOT}${i}"
+			mount -B "$i" "${ROOT}${i}"
+		fi
 	done
 }
 
@@ -100,6 +103,25 @@ install_package() {
 	bind_umount
 }
 
+link_ccache() {
+	# similar funktionality like ccache in debian
+	# prepend your PATH with /usr/lib/ccache to use the links
+
+	check_chroot
+
+	mkdir -p "$ROOT/usr/lib/ccache"
+
+	install_package ccache
+
+	for i in $COMPILERS
+	do
+		if [ -x "$ROOT/usr/bin/$i" -a ! -e "$ROOT/usr/lib/ccache/$i" ]
+		then
+			ln -rs "$ROOT/usr/bin/ccache" "$ROOT/usr/lib/ccache/$i"
+		fi
+	done
+}
+
 check_chroot() {
 	if [ ! -d "$ROOT" ]
 	then
@@ -118,6 +140,7 @@ commands are:
 	- unbind
 	- prepare-spec
 	- install
+	- ccache
 eof
 	exit 1
 fi
@@ -139,6 +162,9 @@ prepare-spec)
 	;;
 install)
 	install_package "$3"
+	;;
+ccache)
+	link_ccache
 	;;
 *)
 	echo "no command '$1' defined"
