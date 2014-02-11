@@ -98,7 +98,7 @@ install_package() {
 
 	bind_mount
 
-	zypper --root "$ROOT" in "$1"
+	zypper --root "$ROOT" in $1
 
 	bind_umount
 }
