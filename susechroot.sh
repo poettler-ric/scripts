@@ -61,11 +61,7 @@ create_chroot() {
 }
 
 prepare_spec() {
-	check_chroot
-
-	bind_mount
-
-	if [ $# -lt 1 ]
+	if [ -z "$1" ]
 	then
 		echo "no .spec file given"
 		exit 1
@@ -75,6 +71,10 @@ prepare_spec() {
 		echo "$1 isn't file"
 		exit 1
 	fi
+
+	check_chroot
+
+	bind_mount
 
 	sed -e 's/#.*//' "$1" \
 		| sed -e 's/buildrequires/buildrequires/I' \
