@@ -85,6 +85,22 @@ prepare_spec() {
 	bind_umount
 }
 
+install_package() {
+	if [ -z "$1" ]
+	then
+		echo "no package file given"
+		exit 1
+	fi
+
+	check_chroot
+
+	bind_mount
+
+	zypper --root "$ROOT" in "$1"
+
+	bind_umount
+}
+
 check_chroot() {
 	if [ ! -d "$ROOT" ]
 	then
@@ -102,6 +118,7 @@ commands are:
 	- bind
 	- unbind
 	- prepare-spec
+	- install
 eof
 	exit 1
 fi
@@ -120,6 +137,9 @@ unbind)
 	;;
 prepare-spec)
 	prepare_spec "$3"
+	;;
+install)
+	install_package "$3"
 	;;
 *)
 	echo "no command '$1' defined"
