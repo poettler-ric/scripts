@@ -37,6 +37,12 @@ bind_umount() {
 }
 
 create_chroot() {
+	if [ -d "$ROOT" ]
+	then
+		echo "chroot directory '$ROOT' already exits"
+		exit 2
+	fi
+
 	mkdir -p "$ROOT"
 
 	bind_mount
