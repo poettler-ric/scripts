@@ -10,6 +10,8 @@ DEV_PACKAGES="rpm-build"
 #COPY_FILES="/etc/resolv.conf"
 COPY_FILES=""
 COMPILERS="cc gcc c++ g++"
+TMPFS="0"
+TMPFS_SIZE="6g"
 
 # TODO: copy users / groups?
 # TODO: implement commands "count-files", "diff-files"
@@ -45,6 +47,15 @@ create_chroot() {
 
 	mkdir -p "$ROOT"
 
+	if [ "$TMPFS" -ne 0 ]
+	then
+		if [ -n "$TMPFS_SIZE" ]
+		then
+			SIZE_STATEMENT=" -o size=$TMPFS_SIZE "
+		fi
+		mount -t tmpfs $SIZE_STATEMENT none "$ROOT"
+	fi
+
 	bind_mount
 
 	for i in $REPOSITORIES
@@ -66,6 +77,19 @@ create_chroot() {
 	done
 
 	bind_umount
+}
+
+destroy_chroot() {
+	check_chroot
+
+	bind_umount
+
+	if [ "$TMPFS" -ne 0 ]
+	then
+		umount "$ROOT"
+	fi
+
+	rm -r "$ROOT"
 }
 
 prepare_spec() {
@@ -142,6 +166,7 @@ then
 usage: $0 <command> <chroot>
 commands are:
 	- create
+	- destroy
 	- bind
 	- unbind
 	- prepare-spec
@@ -156,6 +181,9 @@ ROOT=$(readlink -f "$2")
 case $1 in
 create)
 	create_chroot
+	;;
+destroy)
+	destroy_chroot
 	;;
 bind)
 	bind_mount
