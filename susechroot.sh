@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# script to create build chroot on suse
+# script to create chroot environments on suse
 
 BIND_MOUNTS="/dev /proc /var/cache/zypp/packages /usr/src/packages/SOURCES $CCACHE_DIR"
 REPOSITORIES="repo-oss repo-non-oss repo-update repo-update-non-oss"
@@ -169,8 +169,8 @@ commands are:
 	- destroy
 	- bind
 	- unbind
-	- prepare-spec
-	- install
+	- prepare-spec <spec-file>
+	- install <package>
 	- ccache
 eof
 	exit 1
