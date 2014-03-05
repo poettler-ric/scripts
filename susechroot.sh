@@ -108,9 +108,9 @@ prepare_spec() {
 		echo "no .spec file given"
 		exit 1
 	fi
-	if [ ! -f "$1" ]
+	if [ ! -r "$1" ]
 	then
-		echo "$1 isn't file"
+		echo "$1 isn't readable"
 		exit 1
 	fi
 
