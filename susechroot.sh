@@ -122,7 +122,7 @@ prepare_spec() {
 		| sed -e 's/buildrequires/buildrequires/I' \
 		| sed -ne '/buildrequires/p' \
 		| sed -re 's/buildrequires:(.*)/\1/' \
-		| xargs zypper --root "$ROOT" in
+		| xargs zypper --root "$ROOT" --non-interactive install
 
 	bind_umount
 }
