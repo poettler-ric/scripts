@@ -74,7 +74,7 @@ create_chroot() {
 
 	if [ -n "$BASE_PACKAGES" -o -n "$DEV_PACKAGES" ]
 	then
-		zypper --root "$ROOT" in $BASE_PACKAGES $DEV_PACKAGES
+		zypper --root "$ROOT" --non-interactive install $BASE_PACKAGES $DEV_PACKAGES
 	fi
 
 	for i in $COPY_FILES
@@ -135,7 +135,7 @@ install_package() {
 
 	bind_mount
 
-	zypper --root "$ROOT" in $1
+	zypper --root "$ROOT" --non-interactive install $1
 
 	bind_umount
 }
