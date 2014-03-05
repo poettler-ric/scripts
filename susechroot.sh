@@ -70,7 +70,7 @@ create_chroot() {
 		zypper --root "$ROOT" ar -kf "/etc/zypp/repos.d/${i}.repo"
 	done
 
-	zypper --root "$ROOT" refresh
+	zypper --root "$ROOT" --gpg-auto-import-keys refresh
 
 	if [ -n "$BASE_PACKAGES" -o -n "$DEV_PACKAGES" ]
 	then
