@@ -2,6 +2,8 @@
 
 # script to create chroot environments on suse
 
+RC_FILE=~/.susechrootrc
+
 BIND_MOUNTS="/dev /proc /var/cache/zypp/packages /usr/src/packages/SOURCES $CCACHE_DIR"
 REPOSITORIES="repo-oss repo-non-oss repo-update repo-update-non-oss"
 #BASE_PACKAGES="zypper"
@@ -15,6 +17,11 @@ TMPFS_SIZE="6g"
 
 # TODO: copy users / groups?
 # TODO: implement commands "count-files", "diff-files"
+
+if [ -r "$RC_FILE" ]
+then
+	. "$RC_FILE"
+fi
 
 bind_mount() {
 	check_chroot
