@@ -4,7 +4,12 @@
 
 RC_FILE=~/.susechrootrc
 
-BIND_MOUNTS="/dev /proc /var/cache/zypp/packages /usr/src/packages/SOURCES $CCACHE_DIR"
+BIND_MOUNTS="/dev /proc \
+	/var/cache/zypp/packages \
+	/usr/src/packages/SOURCES \
+	/usr/src/packages/RPMS \
+	/usr/src/packages/SRPMS \
+	$CCACHE_DIR"
 REPOSITORIES="repo-oss repo-non-oss repo-update repo-update-non-oss"
 #BASE_PACKAGES="zypper"
 BASE_PACKAGES=""
