@@ -11,10 +11,8 @@ BIND_MOUNTS="/dev /proc \
 	/usr/src/packages/SRPMS \
 	$CCACHE_DIR"
 REPOSITORIES="repo-oss repo-non-oss repo-update repo-update-non-oss"
-#BASE_PACKAGES="zypper"
 BASE_PACKAGES=""
 DEV_PACKAGES="rpm-build"
-#COPY_FILES="/etc/resolv.conf"
 COPY_FILES="/etc/passwd"
 COMPILERS="cc gcc c++ g++"
 TMPFS="0"
