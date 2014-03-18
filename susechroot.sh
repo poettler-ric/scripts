@@ -118,11 +118,15 @@ prepare_spec() {
 
 	bind_mount
 
-	sed -e 's/#.*//' "$1" \
+	packages=$(sed -e 's/#.*//' "$1" \
 		| sed -e 's/buildrequires/buildrequires/I' \
 		| sed -ne '/buildrequires/p' \
 		| sed -re 's/buildrequires:(.*)/\1/' \
-		| xargs zypper --root "$ROOT" --non-interactive install
+		| tr -s '[:space:]' ' ')
+	if [ -n "$packages" ]
+	then
+		install_package $packages
+	fi
 
 	bind_umount
 }
