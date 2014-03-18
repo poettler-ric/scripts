@@ -128,9 +128,9 @@ prepare_spec() {
 }
 
 install_package() {
-	if [ -z "$1" ]
+	if [ $# -eq 0 ]
 	then
-		echo "no package file given"
+		echo "no packages given"
 		exit 1
 	fi
 
@@ -138,7 +138,7 @@ install_package() {
 
 	bind_mount
 
-	zypper --root "$ROOT" --non-interactive install $1
+	zypper --root "$ROOT" --non-interactive install "$@"
 
 	bind_umount
 }
