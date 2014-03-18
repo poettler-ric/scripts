@@ -177,14 +177,14 @@ check_chroot() {
 if [ $# -lt 2 ]
 then
 	cat <<eof
-usage: $0 <command> <chroot>
+usage: $0 <command> <chroot> [<args>...]
 commands are:
 	- create
 	- destroy
 	- bind
 	- unbind
-	- prepare-spec <spec-file>
-	- install <package>
+	- prepare-spec (expects a specfile as argument)
+	- install (expects a packagename as argument)
 	- ccache
 eof
 	exit 1
