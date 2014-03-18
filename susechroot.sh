@@ -166,6 +166,28 @@ link_ccache() {
 	done
 }
 
+build() {
+	if [ -z "$1" ]
+	then
+		echo "no .spec file given"
+		exit 1
+	fi
+	if [ ! -r "$1" ]
+	then
+		echo "$1 isn't readable"
+		exit 1
+	fi
+
+	specfile=$(basename "$1")
+
+	create_chroot
+	bind_mount
+	prepare_spec "$1"
+	link_ccache
+	cp "$1" "$ROOT"
+	chroot "$ROOT" rpmbuild -ba "$specfile"
+}
+
 check_chroot() {
 	if [ ! -d "$ROOT" ]
 	then
@@ -186,6 +208,7 @@ commands are:
 	- prepare-spec (expects a specfile as argument)
 	- install (expects a packagename as argument)
 	- ccache
+	- build (expects a specfile as argument)
 eof
 	exit 1
 fi
@@ -213,6 +236,9 @@ install)
 	;;
 ccache)
 	link_ccache
+	;;
+build)
+	build "$3"
 	;;
 *)
 	echo "no command '$1' defined"
