@@ -82,7 +82,7 @@ create_chroot() {
 
 	for i in $COPY_FILES
 	do
-		mkdir -p "$(dirname \"${ROOT}${i}\")"
+		mkdir -p "$(dirname ${ROOT}${i})"
 		cp $i "${ROOT}${i}"
 	done
 
