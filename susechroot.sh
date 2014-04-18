@@ -181,10 +181,10 @@ build() {
 	specfile=$(basename "$1")
 
 	create_chroot
-	bind_mount
 	prepare_spec "$1"
 	link_ccache
 	cp "$1" "$ROOT"
+	bind_mount
 	chroot "$ROOT" rpmbuild -ba "$specfile"
 }
 
