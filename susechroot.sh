@@ -140,11 +140,7 @@ install_package() {
 
 	check_chroot
 
-	bind_mount
-
 	zypper --root "$ROOT" --non-interactive install "$@"
-
-	bind_umount
 }
 
 link_ccache() {
