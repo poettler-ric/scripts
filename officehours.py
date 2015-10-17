@@ -1,5 +1,6 @@
 #!/usr/bin/python
 
+import argparse
 from datetime import datetime, timedelta
 
 __DATE_FORMAT = "%Y%m%d%H%M"
@@ -48,4 +49,8 @@ def print_weeks(weeks):
         print("")
 
 if __name__ == '__main__':
-    print_weeks(parse_weeks("times.txt"))
+    parser = argparse.ArgumentParser(description="Summarize worked hours.")
+    parser.add_argument('file', help="File containing the hours")
+    args = parser.parse_args()
+
+    print_weeks(parse_weeks(args.file))
