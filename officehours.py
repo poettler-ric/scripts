@@ -9,8 +9,10 @@ __START_TIME = "197001010800"
 __SIX_HOURS = timedelta(0, 0, 0, 0, 0, 6)
 __THIRDY_MINUTES = timedelta(0, 0, 0, 0, 30)
 
+
 def decimal_delta(delta):
     return delta.total_seconds() / 3600
+
 
 def parse_weeks(filename):
     weeks = {}
@@ -32,6 +34,7 @@ def parse_weeks(filename):
 
     return weeks
 
+
 def print_weeks(weeks):
     start = datetime.strptime(__START_TIME, __DATE_FORMAT)
     for week_number in sorted(weeks):
@@ -43,8 +46,8 @@ def print_weeks(weeks):
         if duration > __SIX_HOURS:
             end = end + __THIRDY_MINUTES
             print("!! BOOK BREAK !!")
-        print("booking: %s - %s"
-            % (start.strftime(__HOUR_FORMAT), end.strftime(__HOUR_FORMAT)))
+        print("booking: {} - {}".format(start.strftime(__HOUR_FORMAT),
+                                        end.strftime(__HOUR_FORMAT)))
         print("comments:")
         for comment in week['comments']:
             print(comment)
