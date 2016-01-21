@@ -20,7 +20,8 @@ def parse_weeks(filename):
 
             from_time = datetime.strptime(parts[0] + parts[1], __DATE_FORMAT)
             to_time = datetime.strptime(parts[0] + parts[2], __DATE_FORMAT)
-            week_number = from_time.isocalendar()[1]
+            week_number = "{:4d}{:02d}".format(from_time.year,
+                                               from_time.isocalendar()[1])
 
             week = weeks.get(week_number, {
                 'duration': timedelta(),
@@ -33,8 +34,9 @@ def parse_weeks(filename):
 
 def print_weeks(weeks):
     start = datetime.strptime(__START_TIME, __DATE_FORMAT)
-    for week_number, week in weeks.iteritems():
-        print("week %d" % week_number)
+    for week_number in sorted(weeks):
+        week = weeks[week_number]
+        print("week {}".format(week_number))
         duration = week['duration']
         print("duration: %s (%.2f)" % (duration, decimal_delta(duration)))
         end = start + duration
