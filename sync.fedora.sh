@@ -2,7 +2,7 @@
 
 # define RELEASES, BASEARCH, LOCAL_ROOT and MIRROR_ROOT in ~/.sync.fedora.sh
 
-readonly RC_FILE=~/.$0
+readonly RC_FILE=~/.sync.fedora.sh
 
 if [ -f "$RC_FILE" ]
 then
