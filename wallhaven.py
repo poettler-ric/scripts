@@ -15,11 +15,8 @@ import yaml
 
 
 __DEFAULT_CONFIG_FILE = '~/.wallhaven.yaml'
-__QUERY_URL_TEMPLATE = 'https://alpha.wallhaven.cc/search?q={}&page={}'
+__QUERY_URL_TEMPLATE = 'https://alpha.wallhaven.cc/search?q={}'
 __INFO_URL_TEMPLATE = 'https://alpha.wallhaven.cc/wallpaper/{}'
-# __TAG_URL_TEMPLATE = 'https://alpha.wallhaven.cc/tag/{}'
-# 422
-# <h1 original-title="Aliases: " class="tagname sfw">Mila Kunis</h1>
 
 
 def setUserAgent(agent):
@@ -29,9 +26,19 @@ def setUserAgent(agent):
 
 
 def getQuery(query, outputDir):
+    _getImages(__QUERY_URL_TEMPLATE.format(quote(query)),
+               path.join(outputDir, query))
+
+
+def getTag(query, outputDir):
+    _getImages(__QUERY_URL_TEMPLATE.format(quote('"{}"'.format(query))),
+               path.join(outputDir, "tag-" + query))
+
+
+def _getImages(url, outputDir):
     # iterate through all pages
     for i in count(1):
-        with urlopen(__QUERY_URL_TEMPLATE.format(quote(query), i)) as u:
+        with urlopen((url + '&page={}').format(i)) as u:
             soup = BeautifulSoup(u, 'lxml')
             # get image ids
             ids = [j.get('href').split('/')[-1]
@@ -40,7 +47,7 @@ def getQuery(query, outputDir):
                 # if there are no images we reached the last page
                 break
             for j in ids:
-                downloadImage(j, path.join(outputDir, query))
+                downloadImage(j, outputDir)
 
 
 def downloadImage(id, outputDir):
@@ -71,6 +78,8 @@ if __name__ == '__main__':
                         help='User-Agent to use for the requests')
     parser.add_argument('-d', '--dir',
                         help='output directory')
+    parser.add_argument('-t', '--tag', action='store_true',
+                        help='treat query as tag name')
     parser.add_argument('query',
                         help='string to search for on wallhaven')
     args = parser.parse_args()
@@ -93,6 +102,8 @@ if __name__ == '__main__':
         exit(1)
 
     setUserAgent(args.userAgent)
-    getQuery(args.query, args.dir)
-    # TODO: get tags
-    # getTag(422)
+
+    if not args.tag:
+        getQuery(args.query, args.dir)
+    else:
+        getTag(args.query, args.dir)
