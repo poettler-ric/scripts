@@ -1,13 +1,12 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 from argparse import ArgumentParser
 from itertools import count
 from os import makedirs
 from os.path import expanduser, isdir, isfile
-from urllib.error import HTTPError
-from urllib.parse import quote
-from urllib.request import urlopen, urlretrieve, build_opener, install_opener
 from sys import exit, stderr
+from urllib.parse import quote
+from urllib.request import build_opener, install_opener, urlopen, urlretrieve
 import os.path as path
 
 from bs4 import BeautifulSoup
