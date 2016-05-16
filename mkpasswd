@@ -25,7 +25,7 @@ if __name__ == '__main__':
                         help="generate a random password")
     parser.add_argument("-e", "--echo",
                         action='store_true',
-                        help="echo password afterwards")
+                        help="echo plaintext password afterwards")
     parser.add_argument("-l", "--length",
                         nargs='?',
                         default=32,
