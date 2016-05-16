@@ -1,34 +1,41 @@
 #!/usr/bin/python
 
+from argparse import ArgumentParser
 from crypt import crypt
 from getpass import getpass
-import argparse
-import random
-import string
+from random import SystemRandom
+from string import ascii_letters, digits
+
 
 def generateRandomString(length):
     """Generate a random string of alphanumerical characters."""
-    return ''.join(random.SystemRandom().choice(string.ascii_letters + string.digits)
-        for i in range(length))
-    
+    return ''.join(SystemRandom().choice(ascii_letters + digits)
+                   for i in range(length))
+
+
 def generatePassword(plainPassword, salt):
     """Generate a password to put into ``/etc/shadow``."""
     return crypt(plainPassword, "$6$%s" % salt)
 
+
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description="Generate password for /etc/shadow")
-    parser.add_argument("-r", "--random", action='store_true', help="generate a random password")
-    parser.add_argument("-e", "--echo", action='store_true', help="echo password afterwards")
+    parser = ArgumentParser(description="Generate password for /etc/shadow")
+    parser.add_argument("-r", "--random",
+                        action='store_true',
+                        help="generate a random password")
+    parser.add_argument("-e", "--echo",
+                        action='store_true',
+                        help="echo password afterwards")
     parser.add_argument("-l", "--length",
-        nargs='?',
-        default=32,
-        type=int,
-        help="lenght of random passwords")
+                        nargs='?',
+                        default=32,
+                        type=int,
+                        help="lenght of random passwords")
     parser.add_argument("-s", "--saltlength",
-        nargs='?',
-        default=16,
-        type=int,
-        help="lenght of the random salt")
+                        nargs='?',
+                        default=16,
+                        type=int,
+                        help="lenght of the random salt")
     parser.add_argument("password", nargs='?', help="desired password")
     parser.add_argument("salt", nargs='?', help="desired salt")
     args = parser.parse_args()
