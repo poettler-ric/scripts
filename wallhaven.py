@@ -1,5 +1,47 @@
 #!/usr/bin/python3
 
+"""Download images from wallhaven.cc
+
+Usage::
+
+    usage: wallhaven.py [-h] [-c CONFIG] [-u USERAGENT] [-d DIR] [-l LOGIN]
+                        [-p PASSWORD] [-t] [-w] [-s] [-n]
+                        query
+
+    Download images from wallhaven.cc
+
+    positional arguments:
+      query                 string to search for on wallhaven
+
+    optional arguments:
+      -h, --help            show this help message and exit
+      -c CONFIG, --config CONFIG
+                            configuration file (default: ~/.wallhaven.yaml)
+      -u USERAGENT, --userAgent USERAGENT
+                            User-Agent to use for the requests
+      -d DIR, --dir DIR     output directory
+      -l LOGIN, --login LOGIN
+                            login for wallhaven
+      -p PASSWORD, --password PASSWORD
+                            password for wallhaven
+      -t, --tag             treat query as tag name
+      -w, --sfw             get suitable-for-work wallpapers
+      -s, --sketchy         get sketchy wallpapers
+      -n, --nsfw            get not-suitable-for-work wallpapers
+
+Config File
+===========
+The following variables can be set in the config file:
+* userAgent - User-Agent to use for the requests
+* dir - output directory
+* login - login for wallhaven
+* password - password for wallhaven
+* sfw (on|off) - get suitable-for-work wallpapers
+* sketchy (on|off) - get sketchy wallpapers
+* nsfw (on|off) - get not-suitable-for-work wallpapers
+"""
+
+
 from argparse import ArgumentParser
 from getpass import getpass
 from http.cookiejar import CookieJar
