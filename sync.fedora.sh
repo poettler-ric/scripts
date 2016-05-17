@@ -13,6 +13,19 @@
 # RPMFUSION_MIRROR ... remote root directory for rpmfusion repositories
 
 
+sync_repo() {
+    REPO_URL="$1"
+    LOCAL_FOLDER="$2"
+
+    mkdir -p "$LOCAL_FOLDER"
+
+    rsync -vaH --numeric-ids --delete --delete-delay --delay-updates \
+        --progress --human-readable \
+        --exclude '**/debug' \
+        "$REPO_URL" "$LOCAL_FOLDER"
+}
+
+
 readonly RC_FILE=~/.sync.fedora.sh
 
 if [ -f "$RC_FILE" ]
@@ -22,20 +35,10 @@ fi
 
 for RELEASE_VER in $FEDORA_RELEASES
 do
-    RELEASE_URL="rsync://$FEDORA_MIRROR/releases/$RELEASE_VER/Everything/$BASEARCH/os/"
-    RELEASE_DIR="${FEDORA_LOCAL}/releases/$RELEASE_VER/Everything/$BASEARCH/os/"
-
-    UPDATE_URL="rsync://$FEDORA_MIRROR/updates/$RELEASE_VER/$BASEARCH/"
-    UPDATE_DIR="${FEDORA_LOCAL}/updates/$RELEASE_VER/$BASEARCH/"
-
-    mkdir -p "$RELEASE_DIR"
-    mkdir -p "$UPDATE_DIR"
-
-    rsync -vaH --numeric-ids --delete --delete-delay --delay-updates \
-        --progress --human-readable \
-        "$RELEASE_URL" "$RELEASE_DIR"
-    rsync -vaH --numeric-ids --delete --delete-delay --delay-updates \
-        --exclude '**/debug' \
-        --progress --human-readable \
-        "$UPDATE_URL" "$UPDATE_DIR"
+    sync_repo \
+        "rsync://$FEDORA_MIRROR/releases/$RELEASE_VER/Everything/$BASEARCH/os/" \
+        "$FEDORA_LOCAL/releases/$RELEASE_VER/Everything/$BASEARCH/os/"
+    sync_repo \
+        "rsync://$FEDORA_MIRROR/updates/$RELEASE_VER/$BASEARCH/" \
+        "$FEDORA_LOCAL/updates/$RELEASE_VER/$BASEARCH/"
 done
