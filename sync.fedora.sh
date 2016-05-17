@@ -24,6 +24,7 @@ sync_repo() {
     rsync -vaH --numeric-ids --delete --delete-delay --delay-updates \
         --progress --human-readable \
         --exclude '**/debug' \
+        --exclude '**/repoview' \
         "$REPO_URL" "$LOCAL_FOLDER"
 }
 
@@ -43,4 +44,15 @@ do
     sync_repo \
         "rsync://$FEDORA_MIRROR/updates/$RELEASE_VER/$BASEARCH/" \
         "$FEDORA_LOCAL/updates/$RELEASE_VER/$BASEARCH/"
+done
+
+for RELEASE_VER in $RPMFUSION_RELEASES
+do
+    # TODO: Fedora 23 still seems to be handled like development - only f23 works atm
+    sync_repo \
+        "rsync://$RPMFUSION_MIRROR/free/fedora/development/$RELEASE_VER/$BASEARCH/os/" \
+        "$RPMFUSION_LOCAL/free/fedora/development/$BASEARCH/$BASEARCH/os/"
+    sync_repo \
+        "rsync://$RPMFUSION_MIRROR/nonfree/fedora/development/$RELEASE_VER/$BASEARCH/os/" \
+        "$RPMFUSION_LOCAL/nonfree/fedora/development/$RELEASE_VER/$BASEARCH/os/"
 done
