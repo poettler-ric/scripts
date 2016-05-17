@@ -30,7 +30,8 @@ def getQuery(query, outputDir, purity):
 
 
 def getTag(query, outputDir, purity):
-    _getImages(__QUERY_URL_TEMPLATE.format(quote('"{}"'.format(query)), purity),
+    _getImages(__QUERY_URL_TEMPLATE.format(
+               quote('"{}"'.format(query)), purity),
                path.join(outputDir, "tag-" + query))
 
 
