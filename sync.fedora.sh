@@ -1,6 +1,8 @@
 #!/bin/sh
 
-# following variables are possible to set in  ~/.sync.fedora.sh
+# syncronizes fedora and rpmfusion repositories
+#
+# following variables are taken from  ~/.sync.fedora.sh
 #
 # BASEARCH ... architectures to sync
 #
