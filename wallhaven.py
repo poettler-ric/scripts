@@ -14,7 +14,7 @@ import yaml
 
 
 __DEFAULT_CONFIG_FILE = '~/.wallhaven.yaml'
-__QUERY_URL_TEMPLATE = 'https://alpha.wallhaven.cc/search?q={}'
+__QUERY_URL_TEMPLATE = 'https://alpha.wallhaven.cc/search?q={}&purity={}'
 __INFO_URL_TEMPLATE = 'https://alpha.wallhaven.cc/wallpaper/{}'
 
 
@@ -24,13 +24,13 @@ def setUserAgent(agent):
     install_opener(opener)
 
 
-def getQuery(query, outputDir):
-    _getImages(__QUERY_URL_TEMPLATE.format(quote(query)),
+def getQuery(query, outputDir, purity):
+    _getImages(__QUERY_URL_TEMPLATE.format(quote(query), purity),
                path.join(outputDir, query))
 
 
-def getTag(query, outputDir):
-    _getImages(__QUERY_URL_TEMPLATE.format(quote('"{}"'.format(query))),
+def getTag(query, outputDir, purity):
+    _getImages(__QUERY_URL_TEMPLATE.format(quote('"{}"'.format(query)), purity),
                path.join(outputDir, "tag-" + query))
 
 
@@ -79,6 +79,12 @@ if __name__ == '__main__':
                         help='output directory')
     parser.add_argument('-t', '--tag', action='store_true',
                         help='treat query as tag name')
+    parser.add_argument('-w', '--sfw', action='store_true',
+                        help='get suitable-for-work wallpapers')
+    parser.add_argument('-s', '--sketchy', action='store_true',
+                        help='get sketchy wallpapers')
+    parser.add_argument('-n', '--nsfw', action='store_true',
+                        help='get not-suitable-for-work wallpapers')
     parser.add_argument('query',
                         help='string to search for on wallhaven')
     args = parser.parse_args()
@@ -90,6 +96,12 @@ if __name__ == '__main__':
                 args.userAgent = c['userAgent']
             if not args.dir and 'dir' in c:
                 args.dir = c['dir']
+            if not args.sfw and 'sfw' in c:
+                args.sfw = c['sfw']
+            if not args.sketchy and 'sketchy' in c:
+                args.sketchy = c['sketchy']
+            if not args.nsfw and 'nsfw' in c:
+                args.nsfw = c['nsfw']
 
     if not args.userAgent:
         print("No User-Agent set. Specify on command line or set 'userAgent'"
@@ -101,8 +113,10 @@ if __name__ == '__main__':
         exit(1)
 
     setUserAgent(args.userAgent)
+    purity = ''.join('1' if i else '0'
+                     for i in (args.sfw, args.sketchy, args.nsfw))
 
     if not args.tag:
-        getQuery(args.query, args.dir)
+        getQuery(args.query, args.dir, purity)
     else:
-        getTag(args.query, args.dir)
+        getTag(args.query, args.dir, purity)
