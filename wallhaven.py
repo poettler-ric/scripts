@@ -1,12 +1,15 @@
 #!/usr/bin/python3
 
 from argparse import ArgumentParser
+from getpass import getpass
+from http.cookiejar import CookieJar
 from itertools import count
 from os import makedirs
 from os.path import expanduser, isdir, isfile
 from sys import exit, stderr
-from urllib.parse import quote
-from urllib.request import build_opener, install_opener, urlopen, urlretrieve
+from urllib.parse import quote, urlencode
+from urllib.request import build_opener, install_opener, urlopen, urlretrieve, \
+    HTTPCookieProcessor, Request
 import os.path as path
 
 from bs4 import BeautifulSoup
@@ -16,10 +19,11 @@ import yaml
 __DEFAULT_CONFIG_FILE = '~/.wallhaven.yaml'
 __QUERY_URL_TEMPLATE = 'https://alpha.wallhaven.cc/search?q={}&purity={}'
 __INFO_URL_TEMPLATE = 'https://alpha.wallhaven.cc/wallpaper/{}'
+__LOGIN_URL = 'https://alpha.wallhaven.cc/auth/login'
 
 
-def setUserAgent(agent):
-    opener = build_opener()
+def configureUrllib(agent):
+    opener = build_opener(HTTPCookieProcessor(CookieJar()))
     opener.addheaders = [('User-Agent', agent)]
     install_opener(opener)
 
@@ -67,6 +71,19 @@ def downloadImage(id, outputDir):
             urlretrieve('http:' + src, destinationFile)
 
 
+def login(login, password):
+    if not password:
+        password = getpass("Password:")
+
+    parameters = {
+        'username': login,
+        'password': password
+    }
+    data = urlencode(parameters)
+    data = data.encode('ascii')
+    urlopen(__LOGIN_URL, data)
+
+
 if __name__ == '__main__':
 
     parser = ArgumentParser(description="Download images from wallhaven.cc")
@@ -78,6 +95,10 @@ if __name__ == '__main__':
                         help='User-Agent to use for the requests')
     parser.add_argument('-d', '--dir',
                         help='output directory')
+    parser.add_argument('-l', '--login',
+                        help='login for wallhaven')
+    parser.add_argument('-p', '--password',
+                        help='password for wallhaven')
     parser.add_argument('-t', '--tag', action='store_true',
                         help='treat query as tag name')
     parser.add_argument('-w', '--sfw', action='store_true',
@@ -97,6 +118,10 @@ if __name__ == '__main__':
                 args.userAgent = c['userAgent']
             if not args.dir and 'dir' in c:
                 args.dir = c['dir']
+            if not args.login and 'login' in c:
+                args.login = c['login']
+            if not args.password and 'password' in c:
+                args.password = c['password']
             if not args.sfw and 'sfw' in c:
                 args.sfw = c['sfw']
             if not args.sketchy and 'sketchy' in c:
@@ -113,9 +138,12 @@ if __name__ == '__main__':
               + "in the config file", file=stderr)
         exit(1)
 
-    setUserAgent(args.userAgent)
+    configureUrllib(args.userAgent)
     purity = ''.join('1' if i else '0'
                      for i in (args.sfw, args.sketchy, args.nsfw))
+
+    if (args.login):
+        login(args.login, args.password)
 
     if not args.tag:
         getQuery(args.query, args.dir, purity)
