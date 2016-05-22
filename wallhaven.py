@@ -6,7 +6,7 @@ Usage::
 
     usage: wallhaven.py [-h] [-c CONFIG] [-u USERAGENT] [-d DIR] [-l LOGIN]
                         [-p PASSWORD] [-t] [-w] [-s] [-n]
-                        query
+                        query [query ...]
 
     Download images from wallhaven.cc
 
@@ -149,7 +149,7 @@ if __name__ == '__main__':
                         help='get sketchy wallpapers')
     parser.add_argument('-n', '--nsfw', action='store_true',
                         help='get not-suitable-for-work wallpapers')
-    parser.add_argument('query',
+    parser.add_argument('query', nargs='+',
                         help='string to search for on wallhaven')
     args = parser.parse_args()
 
@@ -187,7 +187,8 @@ if __name__ == '__main__':
     if (args.login):
         login(args.login, args.password)
 
-    if not args.tag:
-        getQuery(args.query, args.dir, purity)
-    else:
-        getTag(args.query, args.dir, purity)
+    for q in args.query:
+        if not args.tag:
+            getQuery(q, args.dir, purity)
+        else:
+            getTag(q, args.dir, purity)
