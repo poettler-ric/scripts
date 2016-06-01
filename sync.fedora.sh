@@ -51,15 +51,15 @@ do
     # TODO: Fedora 23 still seems to be handled like development - only f23 works atm
     sync_repo \
         "rsync://$RPMFUSION_MIRROR/free/fedora/development/$RELEASE_VER/$BASEARCH/os/" \
-        "$RPMFUSION_LOCAL/free/fedora/development/$BASEARCH/$BASEARCH/os/"
+        "$RPMFUSION_LOCAL/free/fedora/development/$RELEASE_VER/$BASEARCH/os/"
     sync_repo \
         "rsync://$RPMFUSION_MIRROR/free/fedora/updates/testing/$RELEASE_VER/$BASEARCH/" \
-        "$RPMFUSION_LOCAL/free/fedora/updates/testing/$BASEARCH/$BASEARCH/"
+        "$RPMFUSION_LOCAL/free/fedora/updates/testing/$RELEASE_VER/$BASEARCH/"
 
     sync_repo \
         "rsync://$RPMFUSION_MIRROR/nonfree/fedora/development/$RELEASE_VER/$BASEARCH/os/" \
         "$RPMFUSION_LOCAL/nonfree/fedora/development/$RELEASE_VER/$BASEARCH/os/"
     sync_repo \
         "rsync://$RPMFUSION_MIRROR/nonfree/fedora/updates/testing/$RELEASE_VER/$BASEARCH/" \
-        "$RPMFUSION_LOCAL/nonfree/fedora/updates/testing/$BASEARCH/$BASEARCH/"
+        "$RPMFUSION_LOCAL/nonfree/fedora/updates/testing/$RELEASE_VER/$BASEARCH/"
 done
