@@ -13,6 +13,8 @@
 # RPMFUSION_RELEASES ... rpmfusion releases to sync e.g. "1 2"
 # RPMFUSION_LOCAL ... local root directory for rpmfusion repositories
 # RPMFUSION_MIRROR ... remote root directory for rpmfusion repositories
+#
+# BW_LIMIT ... bandwidth limit passed to rsync
 
 
 sync_repo() {
@@ -25,6 +27,7 @@ sync_repo() {
         --progress --human-readable \
         --exclude '**/debug' \
         --exclude '**/repoview' \
+        $BW_LIMIT_ARGS \
         "$REPO_URL" "$LOCAL_FOLDER"
 }
 
@@ -34,6 +37,11 @@ readonly RC_FILE=~/.sync.fedora.sh
 if [ -f "$RC_FILE" ]
 then
     . "$RC_FILE"
+fi
+
+if [ -n "$BW_LIMIT" ]
+then
+    readonly BW_LIMIT_ARGS=" --bwlimit=$BW_LIMIT "
 fi
 
 for RELEASE_VER in $FEDORA_RELEASES
