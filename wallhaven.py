@@ -48,10 +48,10 @@ from http.cookiejar import CookieJar
 from itertools import count
 from os import makedirs
 from os.path import expanduser, isdir, isfile
-from sys import exit, stderr
+from sys import stderr
 from urllib.parse import quote, urlencode
 from urllib.request import build_opener, install_opener, urlopen, urlretrieve, \
-    HTTPCookieProcessor, Request
+    HTTPCookieProcessor
 import os.path as path
 
 from bs4 import BeautifulSoup
@@ -64,28 +64,32 @@ __INFO_URL_TEMPLATE = 'https://alpha.wallhaven.cc/wallpaper/{}'
 __LOGIN_URL = 'https://alpha.wallhaven.cc/auth/login'
 
 
-def configureUrllib(agent):
+def configure_urllib(agent):
+    """Concigure urllib to accept cookies and set the user-agent"""
     opener = build_opener(HTTPCookieProcessor(CookieJar()))
     opener.addheaders = [('User-Agent', agent)]
     install_opener(opener)
 
 
-def getQuery(query, outputDir, purity):
-    _getImages(__QUERY_URL_TEMPLATE.format(quote(query), purity),
-               path.join(outputDir, query))
+def get_query(query, output_dir, purity):
+    """Downloads all images of a given query"""
+    _get_images(__QUERY_URL_TEMPLATE.format(quote(query), purity),
+                path.join(output_dir, query))
 
 
-def getTag(query, outputDir, purity):
-    _getImages(__QUERY_URL_TEMPLATE.format(
-               quote('"{}"'.format(query)), purity),
-               path.join(outputDir, "tag-" + query))
+def get_tag(query, output_dir, purity):
+    """Downloads all images of a given tag"""
+    _get_images(
+        __QUERY_URL_TEMPLATE.format(quote('"{}"'.format(query)), purity),
+        path.join(output_dir, "tag-" + query))
 
 
-def _getImages(url, outputDir):
+def _get_images(url, output_dir):
+    """Downloads all images of a given url"""
     # iterate through all pages
     for i in count(1):
-        with urlopen((url + '&page={}').format(i)) as u:
-            soup = BeautifulSoup(u, 'lxml')
+        with urlopen((url + '&page={}').format(i)) as content:
+            soup = BeautifulSoup(content, 'lxml')
             # get image ids
             ids = [j.get('href').split('/')[-1]
                    for j in soup.find_all('a', 'preview')]
@@ -93,32 +97,34 @@ def _getImages(url, outputDir):
                 # if there are no images we reached the last page
                 break
             for j in ids:
-                downloadImage(j, outputDir)
+                download_image(j, output_dir)
 
 
-def downloadImage(id, outputDir):
-    outputDir = expanduser(outputDir)
-    with urlopen(__INFO_URL_TEMPLATE.format(id)) as u:
-        soup = BeautifulSoup(u, 'lxml')
+def download_image(image_id, output_dir):
+    """Downloads an image with a given id"""
+    output_dir = expanduser(output_dir)
+    with urlopen(__INFO_URL_TEMPLATE.format(image_id)) as content:
+        soup = BeautifulSoup(content, 'lxml')
         # src attribute of the img tag
         src = soup.find(id='wallpaper').get('src')
 
         filename = src.split('/')[-1]
-        destinationFile = path.join(outputDir, filename)
+        destination_file = path.join(output_dir, filename)
 
-        if not isfile(destinationFile):
-            if not isdir(outputDir):
-                makedirs(outputDir)
+        if not isfile(destination_file):
+            if not isdir(output_dir):
+                makedirs(output_dir)
             print('http:' + src)
-            urlretrieve('http:' + src, destinationFile)
+            urlretrieve('http:' + src, destination_file)
 
 
-def login(login, password):
+def login(login_name, password):
+    """Logs into wallhaven.com with a given login"""
     if not password:
         password = getpass("Password:")
 
     parameters = {
-        'username': login,
+        'username': login_name,
         'password': password
     }
     data = urlencode(parameters)
@@ -127,8 +133,9 @@ def login(login, password):
 
 
 if __name__ == '__main__':
-
+    # pylint: disable=C0103
     parser = ArgumentParser(description="Download images from wallhaven.cc")
+    # pylint: enable=C0103
     parser.add_argument('-c', '--config',
                         default=__DEFAULT_CONFIG_FILE,
                         help='configuration file (default: {})'
@@ -151,25 +158,25 @@ if __name__ == '__main__':
                         help='get not-suitable-for-work wallpapers')
     parser.add_argument('query', nargs='+',
                         help='string to search for on wallhaven')
-    args = parser.parse_args()
+    args = parser.parse_args()  # pylint: disable=C0103
 
     if isfile(expanduser(args.config)):
         with open(expanduser(args.config)) as f:
-            c = yaml.load(f)
-            if not args.userAgent and 'userAgent' in c:
-                args.userAgent = c['userAgent']
-            if not args.dir and 'dir' in c:
-                args.dir = c['dir']
-            if not args.login and 'login' in c:
-                args.login = c['login']
-            if not args.password and 'password' in c:
-                args.password = c['password']
-            if not args.sfw and 'sfw' in c:
-                args.sfw = c['sfw']
-            if not args.sketchy and 'sketchy' in c:
-                args.sketchy = c['sketchy']
-            if not args.nsfw and 'nsfw' in c:
-                args.nsfw = c['nsfw']
+            configuration = yaml.load(f)  # pylint: disable=C0103
+            if not args.userAgent and 'userAgent' in configuration:
+                args.userAgent = configuration['userAgent']
+            if not args.dir and 'dir' in configuration:
+                args.dir = configuration['dir']
+            if not args.login and 'login' in configuration:
+                args.login = configuration['login']
+            if not args.password and 'password' in configuration:
+                args.password = configuration['password']
+            if not args.sfw and 'sfw' in configuration:
+                args.sfw = configuration['sfw']
+            if not args.sketchy and 'sketchy' in configuration:
+                args.sketchy = configuration['sketchy']
+            if not args.nsfw and 'nsfw' in configuration:
+                args.nsfw = configuration['nsfw']
 
     if not args.userAgent:
         print("No User-Agent set. Specify on command line or set 'userAgent'"
@@ -180,15 +187,15 @@ if __name__ == '__main__':
               + "in the config file", file=stderr)
         exit(1)
 
-    configureUrllib(args.userAgent)
-    purity = ''.join('1' if i else '0'
-                     for i in (args.sfw, args.sketchy, args.nsfw))
+    configure_urllib(args.userAgent)
+    purity_string = ''.join('1' if i else '0'  # pylint: disable=C0103
+                            for i in (args.sfw, args.sketchy, args.nsfw))
 
-    if (args.login):
+    if args.login:
         login(args.login, args.password)
 
     for q in args.query:
         if not args.tag:
-            getQuery(q, args.dir, purity)
+            get_query(q, args.dir, purity_string)
         else:
-            getTag(q, args.dir, purity)
+            get_tag(q, args.dir, purity_string)
