@@ -5,11 +5,13 @@
 # following variables are taken from  ~/.sync.fedora.sh
 #
 # BASEARCH ... architectures to sync
+# CLEANUP ... if set to "1" then old development directories will be deleted
 #
 # FEDORA_RELEASES ... fedora releases to sync e.g. "1 2"
 # FEDORA_LOCAL ... local root directory for fedora repositories
 # FEDORA_MIRROR ... remote root directory for fedora repositories
 #
+# RPMFUSION_DEVELOPMENT ... rpmfusion development releases to sync e.g. "1 2"
 # RPMFUSION_RELEASES ... rpmfusion releases to sync e.g. "1 2"
 # RPMFUSION_LOCAL ... local root directory for rpmfusion repositories
 # RPMFUSION_MIRROR ... remote root directory for rpmfusion repositories
@@ -54,9 +56,8 @@ do
         "$FEDORA_LOCAL/updates/$RELEASE_VER/$BASEARCH/"
 done
 
-for RELEASE_VER in $RPMFUSION_RELEASES
+for RELEASE_VER in $RPMFUSION_DEVELOPMENT
 do
-    # TODO: Fedora 23 still seems to be handled like development - only f23 works atm
     sync_repo \
         "rsync://$RPMFUSION_MIRROR/free/fedora/development/$RELEASE_VER/$BASEARCH/os/" \
         "$RPMFUSION_LOCAL/free/fedora/development/$RELEASE_VER/$BASEARCH/os/"
@@ -67,6 +68,37 @@ do
     sync_repo \
         "rsync://$RPMFUSION_MIRROR/nonfree/fedora/development/$RELEASE_VER/$BASEARCH/os/" \
         "$RPMFUSION_LOCAL/nonfree/fedora/development/$RELEASE_VER/$BASEARCH/os/"
+    sync_repo \
+        "rsync://$RPMFUSION_MIRROR/nonfree/fedora/updates/testing/$RELEASE_VER/$BASEARCH/" \
+        "$RPMFUSION_LOCAL/nonfree/fedora/updates/testing/$RELEASE_VER/$BASEARCH/"
+done
+
+for RELEASE_VER in $RPMFUSION_RELEASES
+do
+    if [ "$CLEANUP" == "1" ]
+    then
+        rm -rf "$RPMFUSION_LOCAL/free/fedora/development/$RELEASE_VER"
+    fi
+    sync_repo \
+        "rsync://$RPMFUSION_MIRROR/free/fedora/releases/$RELEASE_VER/Everything/$BASEARCH/os/" \
+        "$RPMFUSION_LOCAL/free/fedora/releases/$RELEASE_VER/Everything/$BASEARCH/os/"
+    sync_repo \
+        "rsync://$RPMFUSION_MIRROR/free/fedora/updates/$RELEASE_VER/$BASEARCH/" \
+        "$RPMFUSION_LOCAL/free/fedora/updates/$RELEASE_VER/$BASEARCH/"
+    sync_repo \
+        "rsync://$RPMFUSION_MIRROR/free/fedora/updates/testing/$RELEASE_VER/$BASEARCH/" \
+        "$RPMFUSION_LOCAL/free/fedora/updates/testing/$RELEASE_VER/$BASEARCH/"
+
+    if [ "$CLEANUP" == "1" ]
+    then
+        rm -rf "$RPMFUSION_LOCAL/nonfree/fedora/development/$RELEASE_VER"
+    fi
+    sync_repo \
+        "rsync://$RPMFUSION_MIRROR/nonfree/fedora/releases/$RELEASE_VER/Everything/$BASEARCH/os/" \
+        "$RPMFUSION_LOCAL/nonfree/fedora/releases/$RELEASE_VER/Everything/$BASEARCH/os/"
+    sync_repo \
+        "rsync://$RPMFUSION_MIRROR/nonfree/fedora/updates/$RELEASE_VER/$BASEARCH/" \
+        "$RPMFUSION_LOCAL/nonfree/fedora/updates/$RELEASE_VER/$BASEARCH/"
     sync_repo \
         "rsync://$RPMFUSION_MIRROR/nonfree/fedora/updates/testing/$RELEASE_VER/$BASEARCH/" \
         "$RPMFUSION_LOCAL/nonfree/fedora/updates/testing/$RELEASE_VER/$BASEARCH/"
