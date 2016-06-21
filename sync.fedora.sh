@@ -3,6 +3,7 @@
 # syncronizes fedora and rpmfusion repositories
 #
 # following variables are taken from  ~/.sync.fedora.sh
+# if a positional parameter is given the values will be read from that file
 #
 # BASEARCH ... architectures to sync
 # CLEANUP ... if set to "1" then old development directories will be deleted
@@ -67,11 +68,15 @@ sync_rpmfusion_release() {
 }
 
 
-readonly RC_FILE=~/.sync.fedora.sh
+readonly DEFAULT_RC_FILE=~/.sync.fedora.sh
+readonly RC_FILE=$1
 
-if [ -f "$RC_FILE" ]
+if [ -n "$RC_FILE" ]
 then
     . "$RC_FILE"
+elif [ -f "$DEFAULT_RC_FILE" ]
+then
+    . "$DEFAULT_RC_FILE"
 fi
 
 if [ -n "$BW_LIMIT" ]
