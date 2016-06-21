@@ -34,6 +34,39 @@ sync_repo() {
 }
 
 
+sync_rpmfusion_development() {
+    DISTRIBUTION="$1"
+    RELEASE_VER="$2"
+
+    sync_repo \
+        "rsync://$RPMFUSION_MIRROR/$DISTRIBUTION/fedora/development/$RELEASE_VER/$BASEARCH/os/" \
+        "$RPMFUSION_LOCAL/$DISTRIBUTION/fedora/development/$RELEASE_VER/$BASEARCH/os/"
+    sync_repo \
+        "rsync://$RPMFUSION_MIRROR/$DISTRIBUTION/fedora/updates/testing/$RELEASE_VER/$BASEARCH/" \
+        "$RPMFUSION_LOCAL/$DISTRIBUTION/fedora/updates/testing/$RELEASE_VER/$BASEARCH/"
+}
+
+
+sync_rpmfusion_release() {
+    DISTRIBUTION="$1"
+    RELEASE_VER="$2"
+
+    if [ "$CLEANUP" == "1" ]
+    then
+        rm -rf "$RPMFUSION_LOCAL/$DISTRIBUTION/fedora/development/$RELEASE_VER"
+    fi
+    sync_repo \
+        "rsync://$RPMFUSION_MIRROR/$DISTRIBUTION/fedora/releases/$RELEASE_VER/Everything/$BASEARCH/os/" \
+        "$RPMFUSION_LOCAL/$DISTRIBUTION/fedora/releases/$RELEASE_VER/Everything/$BASEARCH/os/"
+    sync_repo \
+        "rsync://$RPMFUSION_MIRROR/$DISTRIBUTION/fedora/updates/$RELEASE_VER/$BASEARCH/" \
+        "$RPMFUSION_LOCAL/$DISTRIBUTION/fedora/updates/$RELEASE_VER/$BASEARCH/"
+    sync_repo \
+        "rsync://$RPMFUSION_MIRROR/$DISTRIBUTION/fedora/updates/testing/$RELEASE_VER/$BASEARCH/" \
+        "$RPMFUSION_LOCAL/$DISTRIBUTION/fedora/updates/testing/$RELEASE_VER/$BASEARCH/"
+}
+
+
 readonly RC_FILE=~/.sync.fedora.sh
 
 if [ -f "$RC_FILE" ]
@@ -58,48 +91,12 @@ done
 
 for RELEASE_VER in $RPMFUSION_DEVELOPMENT
 do
-    sync_repo \
-        "rsync://$RPMFUSION_MIRROR/free/fedora/development/$RELEASE_VER/$BASEARCH/os/" \
-        "$RPMFUSION_LOCAL/free/fedora/development/$RELEASE_VER/$BASEARCH/os/"
-    sync_repo \
-        "rsync://$RPMFUSION_MIRROR/free/fedora/updates/testing/$RELEASE_VER/$BASEARCH/" \
-        "$RPMFUSION_LOCAL/free/fedora/updates/testing/$RELEASE_VER/$BASEARCH/"
-
-    sync_repo \
-        "rsync://$RPMFUSION_MIRROR/nonfree/fedora/development/$RELEASE_VER/$BASEARCH/os/" \
-        "$RPMFUSION_LOCAL/nonfree/fedora/development/$RELEASE_VER/$BASEARCH/os/"
-    sync_repo \
-        "rsync://$RPMFUSION_MIRROR/nonfree/fedora/updates/testing/$RELEASE_VER/$BASEARCH/" \
-        "$RPMFUSION_LOCAL/nonfree/fedora/updates/testing/$RELEASE_VER/$BASEARCH/"
+    sync_rpmfusion_development "free" $RELEASE_VER
+    sync_rpmfusion_development "nonfree" $RELEASE_VER
 done
 
 for RELEASE_VER in $RPMFUSION_RELEASES
 do
-    if [ "$CLEANUP" == "1" ]
-    then
-        rm -rf "$RPMFUSION_LOCAL/free/fedora/development/$RELEASE_VER"
-    fi
-    sync_repo \
-        "rsync://$RPMFUSION_MIRROR/free/fedora/releases/$RELEASE_VER/Everything/$BASEARCH/os/" \
-        "$RPMFUSION_LOCAL/free/fedora/releases/$RELEASE_VER/Everything/$BASEARCH/os/"
-    sync_repo \
-        "rsync://$RPMFUSION_MIRROR/free/fedora/updates/$RELEASE_VER/$BASEARCH/" \
-        "$RPMFUSION_LOCAL/free/fedora/updates/$RELEASE_VER/$BASEARCH/"
-    sync_repo \
-        "rsync://$RPMFUSION_MIRROR/free/fedora/updates/testing/$RELEASE_VER/$BASEARCH/" \
-        "$RPMFUSION_LOCAL/free/fedora/updates/testing/$RELEASE_VER/$BASEARCH/"
-
-    if [ "$CLEANUP" == "1" ]
-    then
-        rm -rf "$RPMFUSION_LOCAL/nonfree/fedora/development/$RELEASE_VER"
-    fi
-    sync_repo \
-        "rsync://$RPMFUSION_MIRROR/nonfree/fedora/releases/$RELEASE_VER/Everything/$BASEARCH/os/" \
-        "$RPMFUSION_LOCAL/nonfree/fedora/releases/$RELEASE_VER/Everything/$BASEARCH/os/"
-    sync_repo \
-        "rsync://$RPMFUSION_MIRROR/nonfree/fedora/updates/$RELEASE_VER/$BASEARCH/" \
-        "$RPMFUSION_LOCAL/nonfree/fedora/updates/$RELEASE_VER/$BASEARCH/"
-    sync_repo \
-        "rsync://$RPMFUSION_MIRROR/nonfree/fedora/updates/testing/$RELEASE_VER/$BASEARCH/" \
-        "$RPMFUSION_LOCAL/nonfree/fedora/updates/testing/$RELEASE_VER/$BASEARCH/"
+    sync_rpmfusion_release "free" $RELEASE_VER
+    sync_rpmfusion_release "nonfree" $RELEASE_VER
 done
