@@ -40,8 +40,8 @@ sync_rpmfusion_development() {
     RELEASE_VER="$2"
 
     sync_repo \
-        "rsync://$RPMFUSION_MIRROR/$DISTRIBUTION/fedora/development/$RELEASE_VER/$BASEARCH/os/" \
-        "$RPMFUSION_LOCAL/$DISTRIBUTION/fedora/development/$RELEASE_VER/$BASEARCH/os/"
+        "rsync://$RPMFUSION_MIRROR/$DISTRIBUTION/fedora/development/$RELEASE_VER/Everything/$BASEARCH/os/" \
+        "$RPMFUSION_LOCAL/$DISTRIBUTION/fedora/development/$RELEASE_VER/Everything/$BASEARCH/os/"
     sync_repo \
         "rsync://$RPMFUSION_MIRROR/$DISTRIBUTION/fedora/updates/testing/$RELEASE_VER/$BASEARCH/" \
         "$RPMFUSION_LOCAL/$DISTRIBUTION/fedora/updates/testing/$RELEASE_VER/$BASEARCH/"
