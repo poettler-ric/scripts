@@ -45,9 +45,9 @@ def parse_weeks(filename):
 
             week = weeks.get(week_number, {
                 'duration': timedelta(),
-                'comments': []})
+                'comments': set()})
             week['duration'] = week['duration'] + (to_time - from_time)
-            week['comments'].append(" ".join(parts[3:]))
+            week['comments'].add(" ".join(parts[3:]))
             weeks[week_number] = week
 
     return weeks
