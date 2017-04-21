@@ -40,11 +40,11 @@ sync_rpmfusion_development() {
     RELEASE_VER="$2"
 
     sync_repo \
-        "rsync://$RPMFUSION_MIRROR/$DISTRIBUTION/fedora/development/$RELEASE_VER/Everything/$BASEARCH/os/" \
-        "$RPMFUSION_LOCAL/$DISTRIBUTION/fedora/development/$RELEASE_VER/Everything/$BASEARCH/os/"
+        "rsync://$RPMFUSION_MIRROR/$DISTRIBUTION/fedora/development/$RELEASE_VER/Everything/$ARCH/os/" \
+        "$RPMFUSION_LOCAL/$DISTRIBUTION/fedora/development/$RELEASE_VER/Everything/$ARCH/os/"
     sync_repo \
-        "rsync://$RPMFUSION_MIRROR/$DISTRIBUTION/fedora/updates/testing/$RELEASE_VER/$BASEARCH/" \
-        "$RPMFUSION_LOCAL/$DISTRIBUTION/fedora/updates/testing/$RELEASE_VER/$BASEARCH/"
+        "rsync://$RPMFUSION_MIRROR/$DISTRIBUTION/fedora/updates/testing/$RELEASE_VER/$ARCH/" \
+        "$RPMFUSION_LOCAL/$DISTRIBUTION/fedora/updates/testing/$RELEASE_VER/$ARCH/"
 }
 
 
@@ -57,14 +57,14 @@ sync_rpmfusion_release() {
         rm -rf "$RPMFUSION_LOCAL/$DISTRIBUTION/fedora/development/$RELEASE_VER"
     fi
     sync_repo \
-        "rsync://$RPMFUSION_MIRROR/$DISTRIBUTION/fedora/releases/$RELEASE_VER/Everything/$BASEARCH/os/" \
-        "$RPMFUSION_LOCAL/$DISTRIBUTION/fedora/releases/$RELEASE_VER/Everything/$BASEARCH/os/"
+        "rsync://$RPMFUSION_MIRROR/$DISTRIBUTION/fedora/releases/$RELEASE_VER/Everything/$ARCH/os/" \
+        "$RPMFUSION_LOCAL/$DISTRIBUTION/fedora/releases/$RELEASE_VER/Everything/$ARCH/os/"
     sync_repo \
-        "rsync://$RPMFUSION_MIRROR/$DISTRIBUTION/fedora/updates/$RELEASE_VER/$BASEARCH/" \
-        "$RPMFUSION_LOCAL/$DISTRIBUTION/fedora/updates/$RELEASE_VER/$BASEARCH/"
+        "rsync://$RPMFUSION_MIRROR/$DISTRIBUTION/fedora/updates/$RELEASE_VER/$ARCH/" \
+        "$RPMFUSION_LOCAL/$DISTRIBUTION/fedora/updates/$RELEASE_VER/$ARCH/"
     sync_repo \
-        "rsync://$RPMFUSION_MIRROR/$DISTRIBUTION/fedora/updates/testing/$RELEASE_VER/$BASEARCH/" \
-        "$RPMFUSION_LOCAL/$DISTRIBUTION/fedora/updates/testing/$RELEASE_VER/$BASEARCH/"
+        "rsync://$RPMFUSION_MIRROR/$DISTRIBUTION/fedora/updates/testing/$RELEASE_VER/$ARCH/" \
+        "$RPMFUSION_LOCAL/$DISTRIBUTION/fedora/updates/testing/$RELEASE_VER/$ARCH/"
 }
 
 
@@ -84,24 +84,27 @@ then
     readonly BW_LIMIT_ARGS=" --bwlimit=$BW_LIMIT "
 fi
 
-for RELEASE_VER in $FEDORA_RELEASES
+for ARCH in $BASEARCH
 do
-    sync_repo \
-        "rsync://$FEDORA_MIRROR/releases/$RELEASE_VER/Everything/$BASEARCH/os/" \
-        "$FEDORA_LOCAL/releases/$RELEASE_VER/Everything/$BASEARCH/os/"
-    sync_repo \
-        "rsync://$FEDORA_MIRROR/updates/$RELEASE_VER/$BASEARCH/" \
-        "$FEDORA_LOCAL/updates/$RELEASE_VER/$BASEARCH/"
-done
+    for RELEASE_VER in $FEDORA_RELEASES
+    do
+        sync_repo \
+            "rsync://$FEDORA_MIRROR/releases/$RELEASE_VER/Everything/$ARCH/os/" \
+            "$FEDORA_LOCAL/releases/$RELEASE_VER/Everything/$ARCH/os/"
+        sync_repo \
+            "rsync://$FEDORA_MIRROR/updates/$RELEASE_VER/$ARCH/" \
+            "$FEDORA_LOCAL/updates/$RELEASE_VER/$ARCH/"
+    done
 
-for RELEASE_VER in $RPMFUSION_DEVELOPMENT
-do
-    sync_rpmfusion_development "free" $RELEASE_VER
-    sync_rpmfusion_development "nonfree" $RELEASE_VER
-done
+    for RELEASE_VER in $RPMFUSION_DEVELOPMENT
+    do
+        sync_rpmfusion_development "free" $RELEASE_VER
+        sync_rpmfusion_development "nonfree" $RELEASE_VER
+    done
 
-for RELEASE_VER in $RPMFUSION_RELEASES
-do
-    sync_rpmfusion_release "free" $RELEASE_VER
-    sync_rpmfusion_release "nonfree" $RELEASE_VER
+    for RELEASE_VER in $RPMFUSION_RELEASES
+    do
+        sync_rpmfusion_release "free" $RELEASE_VER
+        sync_rpmfusion_release "nonfree" $RELEASE_VER
+    done
 done
