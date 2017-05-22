@@ -96,6 +96,12 @@ def print_stats(config):
         print("{}: {}".format(category, count))
 
 
+def print_csv(config):
+    for d in listdir('.'):
+        score, _, _ = get_file_stats(config, join(d, 'notes.txt'))
+        print("{},{}".format(d, score))
+
+
 def print_failed(config):
     basescore = config['base'].getint('base_score')
     for d in listdir('.'):
@@ -133,6 +139,9 @@ if __name__ == '__main__':
     argparser.add_argument('-f',
                            help='list failed students',
                            action='store_true')
+    argparser.add_argument('-c',
+                           help='export csv',
+                           action='store_true')
     argparser.add_argument('student_id',
                            help="id of the student to score",
                            nargs='?')
@@ -151,6 +160,8 @@ if __name__ == '__main__':
             config.write(f)
     elif args.f:
         print_failed(config)
+    elif args.c:
+        print_csv(config)
     elif args.student_id:
         score_student(config, args.student_id)
     else:
