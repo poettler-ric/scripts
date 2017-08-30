@@ -108,3 +108,5 @@ do
         sync_rpmfusion_release "nonfree" $RELEASE_VER
     done
 done
+
+echo "$(date)" >>"$FEDORA_LOCAL/last_update.txt"
