@@ -36,7 +36,7 @@ def get_file_stats(config, file):
                 name = l.split()[1]
                 value = config['mali'].getfloat(name)
                 if value is None:
-                    sys.exit("unknown malus: {}".format(name))
+                    sys.exit("unknown malus: {} ({})".format(name, file))
                 mali.add("{} (-{})".format(name, value))
                 score -= value
             elif l.startswith('+'):
