@@ -36,6 +36,10 @@ def parse_weeks(filename):
     weeks = {}
     with open(filename) as file:
         for line in file:
+            line = line.strip()
+            if not line:
+                continue
+
             parts = line.split()
 
             from_time = datetime.strptime(parts[0] + parts[1], __DATE_FORMAT)
