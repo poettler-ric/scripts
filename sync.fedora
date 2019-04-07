@@ -68,7 +68,7 @@ sync_rpmfusion_release() {
 }
 
 
-readonly DEFAULT_RC_FILE=~/.sync.fedora.sh
+readonly DEFAULT_RC_FILE=~/.sync.fedora
 readonly RC_FILE=$1
 
 if [ -n "$RC_FILE" ]
