@@ -1,0 +1,11 @@
+#!/usr/bin/env sh
+
+export VERSION="$1"
+export WINEPREFIX="$2"
+export DOWNLOADS="${HOME}/Downloads"
+export URL="https://github.com/doitsujin/dxvk/releases/download/v${VERSION}/dxvk-${VERSION}.tar.gz"
+
+wget "$URL" -P "$DOWNLOADS"
+tar xf "${DOWNLOADS}/dxvk-${VERSION}.tar.gz" -C "$DOWNLOADS"
+
+"$DOWNLOADS/dxvk-${VERSION}/setup_dxvk.sh" install

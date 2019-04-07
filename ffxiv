@@ -1,0 +1,16 @@
+#!/bin/sh
+
+# switch cpu to "performance"
+sudo cpupower frequency-set --governor performance
+
+# switch gpu to "prefer maximum performance"
+nvidia-settings -a "[gpu:0]/GpuPowerMizerMode=1"
+
+export WINEPREFIX="/home/richi/wineprefix/ffxiv"
+export DXVK_CONFIG_FILE="${WINEPREFIX}/drive_c/dxvk/dxvk.conf"
+export DXVK_STATE_CACHE_PATH="${WINEPREFIX}/drive_c/dxvk/cache"
+export DXVK_LOG_PATH="${WINEPREFIX}/drive_c/dxvk/log"
+export WINEDEBUG="-all"
+export WINEARCH="win64"
+
+wine c:\\\\windows\\\\command\\\\start.exe c:\\users\\Public\\Desktop\\FINAL\ FANTASY\ XIV\ -\ A\ Realm\ Reborn.lnk
