@@ -1,0 +1,8 @@
+#!/bin/sh
+
+MOUNTFOLER="${HOME}/qnap"
+SHARE=$(basename "$1")
+
+sshfs "qnap:/share/MD0_DATA/$SHARE" \
+    "${MOUNTFOLER}/${SHARE}" \
+    -o "idmap=file,uidfile=${HOME}/.sshfs.qnap.uid,gidfile=${HOME}/.sshfs.qnap.gid"
