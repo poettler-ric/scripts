@@ -88,12 +88,22 @@ for ARCH in $BASEARCH
 do
     for RELEASE_VER in $FEDORA_RELEASES
     do
+        # sync release
         sync_repo \
             "rsync://$FEDORA_MIRROR/releases/$RELEASE_VER/Everything/$ARCH/os/" \
             "$FEDORA_LOCAL/releases/$RELEASE_VER/Everything/$ARCH/os/"
+        # sync release
+        sync_repo \
+            "rsync://$FEDORA_MIRROR/releases/$RELEASE_VER/Modular/$ARCH/os/" \
+            "$FEDORA_LOCAL/releases/$RELEASE_VER/Modular/$ARCH/os/"
+        # sync update
         sync_repo \
             "rsync://$FEDORA_MIRROR/updates/$RELEASE_VER/Everything/$ARCH/" \
             "$FEDORA_LOCAL/updates/$RELEASE_VER/Everything/$ARCH/"
+        # sync update modules
+        sync_repo \
+            "rsync://$FEDORA_MIRROR/updates/$RELEASE_VER/Modular/$ARCH/" \
+            "$FEDORA_LOCAL/updates/$RELEASE_VER/Modular/$ARCH/"
     done
 
     for RELEASE_VER in $RPMFUSION_DEVELOPMENT
