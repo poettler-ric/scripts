@@ -92,8 +92,8 @@ do
             "rsync://$FEDORA_MIRROR/releases/$RELEASE_VER/Everything/$ARCH/os/" \
             "$FEDORA_LOCAL/releases/$RELEASE_VER/Everything/$ARCH/os/"
         sync_repo \
-            "rsync://$FEDORA_MIRROR/updates/$RELEASE_VER/$ARCH/" \
-            "$FEDORA_LOCAL/updates/$RELEASE_VER/$ARCH/"
+            "rsync://$FEDORA_MIRROR/updates/$RELEASE_VER/Everything/$ARCH/" \
+            "$FEDORA_LOCAL/updates/$RELEASE_VER/Everything/$ARCH/"
     done
 
     for RELEASE_VER in $RPMFUSION_DEVELOPMENT
