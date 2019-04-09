@@ -1,8 +1,9 @@
 #!/bin/sh
 
-MOUNTFOLER="${HOME}/qnap"
 SHARE=$(basename "$1")
+MOUNTFOLER="${HOME}/qnap/${SHARE}"
 
-sshfs "qnap:/share/MD0_DATA/$SHARE" \
-    "${MOUNTFOLER}/${SHARE}" \
-    -o "idmap=file,uidfile=${HOME}/.sshfs.qnap.uid,gidfile=${HOME}/.sshfs.qnap.gid"
+GID=$(id -g)
+
+sudo mount -t cifs "//qnap/${SHARE}" "${MOUNTFOLER}" \
+    -o "credentials=${HOME}/.credentials.qnap,uid=${UID},gid=${GID}"
