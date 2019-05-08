@@ -1,0 +1,4 @@
+#!/usr/bin/sh
+
+eval "$(gpg --decrypt "${HOME}/.password-store/wifi/${1}.gpg")"
+nmcli device wifi connect "$SSID" password "$KEY"
