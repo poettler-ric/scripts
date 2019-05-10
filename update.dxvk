@@ -3,9 +3,12 @@
 export VERSION="$1"
 export WINEPREFIX="$2"
 export DOWNLOADS="${HOME}/Downloads"
-export URL="https://github.com/doitsujin/dxvk/releases/download/v${VERSION}/dxvk-${VERSION}.tar.gz"
+export ZIPFILE="dxvk-${VERSION}.tar.gz"
+export URL="https://github.com/doitsujin/dxvk/releases/download/v${VERSION}/${ZIPFILE}"
 
-wget "$URL" -P "$DOWNLOADS"
-tar xf "${DOWNLOADS}/dxvk-${VERSION}.tar.gz" -C "$DOWNLOADS"
+if [ ! -e "${DOWNLOADS}/${ZIPFILE}" ]; then
+    wget "$URL" -P "$DOWNLOADS"
+fi
+tar xf "${DOWNLOADS}/$ZIPFILE" -C "$DOWNLOADS"
 
 "$DOWNLOADS/dxvk-${VERSION}/setup_dxvk.sh" install
