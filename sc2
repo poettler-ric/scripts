@@ -1,0 +1,5 @@
+#!/bin/sh
+
+
+export WINEPREFIX="/home/richi/wineprefix/battlenet"
+wine C:\\\\windows\\\\command\\\\start.exe c:\\users\\Public\\Desktop\\StarCraft\ II.lnk

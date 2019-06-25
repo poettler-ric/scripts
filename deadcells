@@ -1,0 +1,3 @@
+#!/bin/sh
+
+"${HOME}/GOG Games/Dead Cells/start.sh"

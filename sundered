@@ -1,0 +1,3 @@
+#!/bin/sh
+
+"${HOME}/GOG Games/Sundered/start.sh"
