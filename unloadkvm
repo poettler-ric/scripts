@@ -1,5 +1,0 @@
-#!/bin/sh
-for mod in `lsmod | cut -f 1 -d " " | grep kvm`
-do
-	sudo rmmod $mod
-done

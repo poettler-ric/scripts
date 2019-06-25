@@ -1,1 +1,0 @@
-find /home/richi/music/ \( -name Save*-org* -o -name *CXR* -o -name "*Jay Shields*" \) -delete
