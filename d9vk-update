@@ -5,9 +5,9 @@ export WINEPREFIX="$2"
 
 export URL="https://git.froggi.es/joshua/d9vk/-/jobs/${BUILD}/artifacts/download"
 
-export DOWNLOADS="${HOME}/Downloads"
-export ZIPFILE="${DOWNLOADS}/d9vk-${BUILD}.zip"
-export FOLDER="${DOWNLOADS}/d9vk-${BUILD}"
+export WORKDIR="${HOME}/Downloads"
+export ZIPFILE="${WORKDIR}/d9vk-${BUILD}.zip"
+export FOLDER="${WORKDIR}/d9vk-${BUILD}"
 
 if [ ! -e "${ZIPFILE}" ]; then
     curl -o "${ZIPFILE}" "$URL"
