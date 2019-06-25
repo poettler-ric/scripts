@@ -1,0 +1,20 @@
+#!/bin/sh
+
+export BUILD="$1"
+export WINEPREFIX="$2"
+
+export URL="https://git.froggi.es/joshua/d9vk/-/jobs/${BUILD}/artifacts/download"
+
+export DOWNLOADS="${HOME}/Downloads"
+export ZIPFILE="${DOWNLOADS}/d9vk-${BUILD}.zip"
+export FOLDER="${DOWNLOADS}/d9vk-${BUILD}"
+
+if [ ! -e "${ZIPFILE}" ]; then
+    curl -o "${ZIPFILE}" "$URL"
+fi
+
+mkdir -p "${FOLDER}"
+cd "${FOLDER}" || exit
+unzip -o "${ZIPFILE}"
+
+"${FOLDER}/build/dxvk-release/setup_dxvk.sh" install
