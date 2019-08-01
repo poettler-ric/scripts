@@ -60,6 +60,8 @@ if __name__ == '__main__':
 
     print("pulling configuration")
     checkout_args = f"-C {args.checkout}" if args.checkout else ""
+    if args.repository.startswith('http'):
+        checkout_args += ' --full'
     _, ok = execute_command(f"ansible-pull -U {args.repository} " +
                             f"-d {args.tmp} -i {args.inventory} " +
                             f"{checkout_args} {args.playbook}",
