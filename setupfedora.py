@@ -43,6 +43,8 @@ if __name__ == '__main__':
     parser.add_argument('-l', '--log', default=DEFAULT_LOGFILE,
                         help="logfile to write")
     parser.add_argument('-c', '--checkout', help="branch to checkout")
+    parser.add_argument('-d', '--dump', action='store_true',
+                        help="perform a dump http clone")
     args = parser.parse_args()
 
     print("installing needed packages")
@@ -60,7 +62,7 @@ if __name__ == '__main__':
 
     print("pulling configuration")
     checkout_args = f"-C {args.checkout}" if args.checkout else ""
-    if args.repository.startswith('http'):
+    if args.dump:
         checkout_args += ' --full'
     _, ok = execute_command(f"ansible-pull -U {args.repository} " +
                             f"-d {args.tmp} -i {args.inventory} " +
