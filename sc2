@@ -2,4 +2,5 @@
 
 
 export WINEPREFIX="/home/richi/wineprefix/battlenet"
+export WINEPREFIX="/home/richi/wineprefix/sc2"
 wine C:\\\\windows\\\\command\\\\start.exe c:\\users\\Public\\Desktop\\StarCraft\ II.lnk
