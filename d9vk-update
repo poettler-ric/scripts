@@ -17,4 +17,4 @@ mkdir -p "${FOLDER}"
 cd "${FOLDER}" || exit
 unzip -o "${ZIPFILE}"
 
-"${FOLDER}/build/dxvk-release/setup_dxvk.sh" install
+"${FOLDER}/build/d9vk-release/setup_dxvk.sh" install
