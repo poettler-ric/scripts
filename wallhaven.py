@@ -162,7 +162,7 @@ if __name__ == '__main__':
 
     if isfile(expanduser(args.config)):
         with open(expanduser(args.config)) as f:
-            configuration = yaml.load(f)  # pylint: disable=C0103
+            configuration = yaml.load(f, Loader=yaml.FullLoader)  # pylint: disable=C0103
             if not args.userAgent and 'userAgent' in configuration:
                 args.userAgent = configuration['userAgent']
             if not args.dir and 'dir' in configuration:
