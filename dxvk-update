@@ -12,3 +12,9 @@ fi
 tar xf "${DOWNLOADS}/$ZIPFILE" -C "$DOWNLOADS"
 
 "$DOWNLOADS/dxvk-${VERSION}/setup_dxvk.sh" install
+
+# create dxvk structure in wineprefix
+export DXVKDIR=${WINEPREFIX}/drive_c/dxvk
+mkdir -p "${DXVKDIR}/cache" \
+    "${DXVKDIR}/log"
+echo 'd3d11.maxTessFactor = 8' > "${DXVKDIR}/dxvk.conf"
