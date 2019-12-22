@@ -1,0 +1,20 @@
+#!/bin/sh
+
+# switch cpu to "performance"
+sudo cpupower frequency-set --governor performance
+
+export RADV_PERFTEST=aco
+
+export WINEPREFIX="${HOME}/wineprefix/poe"
+export DXVKPREFIX="${WINEPREFIX}/drive_c/dxvk"
+
+export __GL_SHADER_DISK_CACHE_SKIP_CLEANUP=1
+export DXVK_CONFIG_FILE="${DXVKPREFIX}/dxvk.conf"
+export DXVK_STATE_CACHE_PATH="${DXVKPREFIX}/cache"
+export DXVK_LOG_PATH="${DXVKPREFIX}/log"
+export WINEDEBUG="-all"
+export WINEARCH="win64"
+
+#export DXVK_HUD=1
+
+wine c:\\\\windows\\\\command\\\\start.exe c:\\users\\${USER}\\Desktop\\Path\ of\ Exile.lnk

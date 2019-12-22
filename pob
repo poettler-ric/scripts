@@ -1,0 +1,6 @@
+#!/bin/sh
+
+export WINEPREFIX=${HOME}/wineprefix/pob
+export WINEARCH=win64
+
+wine "$WINEPREFIX/drive_c/Program Files (x86)/Path of Building/Path of Building.exe"
